@@ -12,8 +12,8 @@ jobs:
       - name: Login to Local ACR
         uses: docker/login-action@v2
         with:
-          registry: registry.potatolab.dev
-          username: ${{ secrets.LOCAL_ACR_USERNAME }}
+          registry: ${{ vars.LOCAL_ACR_URL }}
+          username: ${{ vars.LOCAL_ACR_USERNAME }}
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
 
       # TODO: Get meta info
@@ -33,7 +33,7 @@ jobs:
       - name: Login to Public ACR
         uses: docker/login-action@v2
         with:
-          username: ${{ variables.PUBLIC_ACR_USERNAME }}
+          username: ${{ vars.PUBLIC_ACR_USERNAME }}
           password: ${{ secrets.PUBLIC_ACR_PASSWORD }}
 
       # TODO: Get meta info
