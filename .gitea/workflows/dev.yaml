@@ -2,7 +2,7 @@ name: Build & Test App
 on:
   push:
     branches:
-      - 'v[0-9]+.[0-9]+'
+      - 'dev/v[0-9]+.[0-9]+'
 
 jobs:
   test:
