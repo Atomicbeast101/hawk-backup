@@ -41,9 +41,7 @@ jobs:
       - name: Build & Push to Local ACR
         uses: docker/build-push-action@v6
         with:
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta
