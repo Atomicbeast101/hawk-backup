@@ -33,7 +33,7 @@ jobs:
         id: meta
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(echo ${GITHUB_REF}) >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
       
       - name: Get Output
         run: |
