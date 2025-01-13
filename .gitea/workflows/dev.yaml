@@ -38,7 +38,7 @@ jobs:
       - name: Get Output
         run: |
           echo "${{ steps.meta.outputs.REPO_NAME }}"
-          echo "${{ steps.meta.outputs.REPO_VERSION }}"
+          echo "${GITHUB_BASE_REF}"
 
   #     - name: Build & Push to Local ACR
   #       uses: docker/build-push-action@v4
