@@ -1,0 +1,5 @@
+postgresql-common
+mariadb-client
+borgbackup
+gnupg
+curl

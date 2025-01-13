@@ -1,0 +1,72 @@
+system:
+  prometheus:
+    enabled: true
+    port: 9100
+
+alerts:
+  - name: example-webhook-alert
+    success: false
+    failure: true
+    webhook:
+      url: https://api.pushover.net/1/messages.json
+      data:
+        user: user_key_here # or environment variable: HAWKUPS_ALERTS__example_webhook_alert__USER
+        token: api_token_here # or environment variable: HAWKUPS_ALERTS__example_webhook_alert__TOKEN
+  - name: example-pushover-alert
+    success: false
+    failure: true
+    notifiers:
+      type: pushover
+      data:
+        user: user_key_here # or environment variable: HAWKUPS_ALERTS__example_webhook_alert__USER
+        token: api_token_here # or environment variable: HAWKUPS_ALERTS__example_webhook_alert__TOKEN
+
+destinations:
+  - name: example-sftp-server
+    sftp:
+      server: sftp
+      port: 22
+      username: example
+      password: 1234 # or environment variable: HAWKUPS_DESTINATIONS__example-sftp-server__PASSWORD
+      path: /upload
+    retention: 7d
+
+jobs:
+  - name: example-podb-server
+    postgresql:
+      server: postgresql
+      port: 5432
+      username: bckupmgr
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example-podb-server__PASSWORD
+      ssl: disable
+      excludes: []
+    destination: example-sftp-server
+    retention: 2d
+    alert: example-webhook-alert
+  - name: example-mydb-server
+    mysql:
+      server: mysql
+      port: 3306
+      username: root
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example-mydb-server__PASSWORD
+      excludes: []
+    destination: example-sftp-server
+    alert: example-webhook-alert
+  - name: example-modb-server
+    mongodb:
+      server: mongodb
+      port: 27017
+      username: root
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example-modb-server__PASSWORD
+      excludes: []
+    destination: example-sftp-server
+    alert: example-webhook-alert
+  # - name: host-ansible-example
+  #   ansible:
+  #     host: hostfiles
+  #     port: 22
+  #     username: example
+  #     password: 1234
+  #     playbook: playbook.yml
+  #   destination: example-sftp-server
+  #   alert: example-webhook-alert

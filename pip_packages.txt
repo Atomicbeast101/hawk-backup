@@ -1,0 +1,15 @@
+mysql-connector-python
+prometheus_client
+ansible-pylibssh
+psycopg2-binary
+ansible_runner
+celery[redis]
+apscheduler
+notifiers
+gunicorn
+paramiko
+yamale
+pysftp
+psutil
+flask
+redis

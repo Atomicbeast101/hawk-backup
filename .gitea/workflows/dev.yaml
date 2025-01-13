@@ -1,0 +1,45 @@
+name: Build & Test App
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env: {} # TODO
+    steps:
+      - name: Login to Local ACR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ variables.LOCAL_ACR_URL }}
+          username: ${{ variables.LOCAL_ACR_USERNAME }}
+          password: ${{ secrets.LOCAL_ACR_PASSWORD }}
+
+      # TODO: Get meta info
+
+      - name: Build & Push to Local ACR
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            # TODO: set tags here
+
+  test:
+    runs-on: ubuntu-latest
+
+
+# Dev run
+# Build images and push to local ACR
+# Run automated tests on it
+#   - Perform API calls (grab list of alerts & jobs)
+#   - Perform API call on alert tests
+#   - Perform API call on job tests
+# Notify user of successful/failed build&push&test
+
+

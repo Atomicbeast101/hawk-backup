@@ -1,0 +1,88 @@
+services:
+  sftp:
+    container_name: sftp
+    image: atmoz/sftp:latest
+    restart: no
+    volumes:
+      - ./tests/sftp:/home/example/upload
+    command: example:1234:::upload
+    ports:
+      - 22:22
+    healthcheck:
+      test: "nc -z localhost 22"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app
+  postgresql:
+    container_name: postgresql
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: bckupmgr
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - ./tests/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    networks:
+      - app
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - ./tests/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+    networks:
+      - app
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_DATABASE: test
+    volumes:
+      - ./tests/mongodb-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports: 
+      - 27017:27017
+    networks:
+      - app
+  # ubuntu:
+  #   container_name: ubuntu
+  #   build:
+  #     context: tests/
+  #     dockerfile: Dockerfile_ubuntu
+  #   ports:
+  #     - 22:22
+  #   networks:
+  #     - app
+  app:
+    container_name: app
+    restart: no
+    build:
+      context: .
+    # environment:
+    #   HAWKUPS_LOG_LEVEL: INFO
+    volumes:
+      - ./tests/app/config:/config
+      - ./tests/app/log:/log
+      - ./tests/app/tmp:/tmp
+    ports:
+      - 5000:5000
+      - 9100:9100
+    depends_on: 
+      - sftp
+      - postgresql
+      - mysql
+      - mongodb
+      # - ubuntu
+    networks:
+      - app
+
+networks:
+  app:

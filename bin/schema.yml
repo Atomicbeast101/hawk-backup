@@ -1,0 +1,72 @@
+system:
+  prometheus:
+    enabled: bool()
+    port: int(min=1, max=65535)
+alerts: list(include('alert'))
+destinations: list(include('destination'))
+jobs: list(include('job'))
+---
+alert:
+  name: regex('^[a-zA-Z0-9-_].*$')
+  success: bool()
+  failure: bool()
+  webhook: include('alert_webhook', required=False)
+  notifiers: include('alert_notifiers', required=False)
+
+alert_webhook:
+  url: str()
+  data: map(required=True)
+
+alert_notifiers:
+  type: str()
+  data: map(required=True)
+
+destination:
+  name: regex('^[a-zA-Z0-9-_].*$')
+  sftp: include('destination_sftp', required=False)
+  retention: regex('^[0-9]+d$', required=False)
+
+destination_sftp:
+  server: str()
+  port: int(min=1, max=65535)
+  username: any(int(), str())
+  password: any(int(), str(), required=False)
+  path: str()
+
+job:
+  name: regex('^[a-zA-Z0-9-_].*$')
+  postgresql: include('job_postgresql', required=False)
+  mysql: include('job_mysql', required=False)
+  mongodb: include('job_mongodb', required=False)
+  # files: include('job_ansible', required=False)
+  destination: str()
+  retention: regex('^[0-9]+d$', required=False)
+  alert: str(required=False)
+
+job_postgresql:
+  server: str()
+  port: int(min=1, max=65535)
+  username: any(int(), str())
+  password: any(int(), str(), required=False)
+  ssl: enum('disable', 'allow', 'prefer', 'require')
+  excludes: list()
+
+job_mysql:
+  server: str()
+  port: int(min=1, max=65535)
+  username: any(int(), str())
+  password: any(int(), str(), required=False)
+  excludes: list()
+
+job_mongodb:
+  server: str()
+  port: int(min=1, max=65535)
+  username: any(int(), str())
+  password: any(int(), str(), required=False)
+  excludes: list()
+
+# job_ansible:
+#   host: str()
+#   port: int(min=1, max=65535)
+#   username: any(int(), str())
+#   password: any(int(), str(), required=False)
