@@ -33,12 +33,12 @@ jobs:
         id: meta
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(echo ${GITHUB_BASE_REF} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
       
       - name: Get Output
         run: |
           echo "${{ steps.meta.outputs.REPO_NAME }}"
-          echo "${GITHUB_BASE_REF}"
+          echo "${{ steps.meta.outputs.REPO_VERSION }}"
 
   #     - name: Build & Push to Local ACR
   #       uses: docker/build-push-action@v4
