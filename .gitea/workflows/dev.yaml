@@ -40,17 +40,17 @@ jobs:
           echo "${{ steps.meta.outputs.REPO_NAME }}"
           echo "${{ steps.meta.outputs.REPO_VERSION }}"
 
-  #     - name: Build & Push to Local ACR
-  #       uses: docker/build-push-action@v4
-  #       with:
-  #         context: .
-  #         file: ./Dockerfile
-  #         platforms: |
-  #           linux/amd64
-  #           linux/arm64
-  #         push: true
-  #         tags: |
-  #           # TODO: set tags here
+      - name: Build & Push to Local ACR
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta
 
   # test:
   #   runs-on: ubuntu-latest
