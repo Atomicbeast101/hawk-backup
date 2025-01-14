@@ -53,7 +53,7 @@ jobs:
 
       - name: Check Test Results
         run: |
-          ${{ steps.test_results.outputs }}
+          echo "${{ steps.test_results.outputs }}"
 
       # - name: Get Health Check via API
       #   id: api_health_check
