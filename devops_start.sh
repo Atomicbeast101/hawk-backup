@@ -9,4 +9,4 @@ mkdir -p tests/app/tmp
 cp --update=none settings.yml tests/app/config/settings.yml
 
 # Start docker containers
-docker compose up --build
+docker compose up -d
