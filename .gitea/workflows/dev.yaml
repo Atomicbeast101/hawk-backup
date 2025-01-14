@@ -43,9 +43,7 @@ jobs:
           HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
         run: |
-          pwd
           ls
-          ./local_run.sh
       
       # - name: Get Health Check via API
       #   id: api_health_check
