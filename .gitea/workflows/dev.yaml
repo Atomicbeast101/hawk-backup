@@ -56,6 +56,7 @@ jobs:
       - name: Notify Developer
         uses: distributhor/workflow-webhook@v3.0.8
         with:
+          verbose: true
           webhook_url: ${{ vars.PUSHOVER_URL }}
           data: '{ "user": "${{ secrets.PUSHOVER_USER }}", "token": "${{ secrets.PUSHOVER_TOKEN }}", "message": "[SUCCESS] Built & tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta app!" }'
 
