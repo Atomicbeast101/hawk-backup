@@ -34,7 +34,7 @@ jobs:
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}")
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -55,7 +55,7 @@ jobs:
   # test:
   #   runs-on: ubuntu-latest
 
-  notify_success:
+  notify:
     runs-on: ubuntu-latest
     if: job.status == 'success'
     steps:
@@ -64,7 +64,7 @@ jobs:
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}")
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
       - name: Notify Developer of Success
         if: job.status == 'success'
