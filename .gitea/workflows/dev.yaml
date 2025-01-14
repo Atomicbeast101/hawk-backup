@@ -36,8 +36,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-
       - name: Start Services & App
         env:
           HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
@@ -91,7 +89,6 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    if: job.status == 'success'
     needs:
       - release
       - tests
