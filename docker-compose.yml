@@ -6,8 +6,8 @@ services:
     volumes:
       - ./tests/sftp:/home/example/upload
     command: example:1234:::upload
-    ports:
-      - 22:22
+    # ports:
+    #   - 22:22
     healthcheck:
       test: "nc -z localhost 22"
       interval: 10s
@@ -24,8 +24,8 @@ services:
       POSTGRES_PASSWORD: 1234
     volumes:
       - ./tests/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5432:5432
     networks:
       - app
   mysql:
@@ -48,8 +48,8 @@ services:
       MONGO_INITDB_DATABASE: test
     volumes:
       - ./tests/mongodb-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    ports: 
-      - 27017:27017
+    # ports: 
+    #   - 27017:27017
     networks:
       - app
   # ubuntu:
