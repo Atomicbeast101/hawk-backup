@@ -22,13 +22,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Output Run ID
-        run: echo ${{ github.run_id }}
-      - name: Output Run Number
-        run: echo ${{ github.run_number }}
-      - name: Output Run Attempt
-        run: echo ${{ github.run_attempt }}
-
       - name: Login to Local ACR
         uses: docker/login-action@v2
         with:
@@ -41,6 +34,7 @@ jobs:
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}")
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -51,7 +45,12 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta
+            ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
+
+# Run automated tests on it
+#   - Perform API calls (grab list of alerts & jobs)
+#   - Perform API call on alert tests
+#   - Perform API call on job tests
 
   # test:
   #   runs-on: ubuntu-latest
@@ -65,38 +64,24 @@ jobs:
         run: |
           echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}")
 
-      - name: Notify Developer
-        uses: distributhor/workflow-webhook@v3.0.8
+      - name: Notify Developer of Success
+        if: job.status == 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
-          verbose: true
-          webhook_url: ${{ vars.PUSHOVER_URL }}
-          data: '{ "user": "${{ secrets.PUSHOVER_USER }}", "token": "${{ secrets.PUSHOVER_TOKEN }}", "message": "[SUCCESS] Built & tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta app!" }'
+          title: Gitea DevOps
+          message: ✅ Built & tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
-  notify_failure:
-    runs-on: ubuntu-latest
-    if: job.status != 'success'
-    steps:
-      - name: Get Meta
-        id: meta
-        run: |
-          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-
-      - name: Notify Developer
-        uses: distributhor/workflow-webhook@v3.0.8
+      - name: Notify Developer of Failure
+        if: job.status != 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
-          webhook_url: ${{ vars.PUSHOVER_URL }}
-          data: '{ "user": "${{ secrets.PUSHOVER_USER }}", "token": "${{ secrets.PUSHOVER_TOKEN }}", "message": "[FAILURE] Unable to built & tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-beta app." }'
-
-
-
-# Dev run
-# Build images and push to local ACR
-# Run automated tests on it
-#   - Perform API calls (grab list of alerts & jobs)
-#   - Perform API call on alert tests
-#   - Perform API call on job tests
-# Notify user of successful/failed build&push&test
-
-
+          title: Gitea DevOps
+          message: ❌ Unable to build & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
