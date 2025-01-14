@@ -47,18 +47,26 @@ jobs:
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
         run: bash devops_start.sh
       
-      - name: Get Health Check via API
-        id: api_health_check
-        uses: muhfaris/request-action@v1
-        with:
-          url: http://localhost:5000/api/health
-          method: GET
+      - name: Perform Tests
+        id: test_results
+        run: python3 tests/tests.py >> $GITHUB_OUTPUT
 
-      - name: Validate App Health Check API Call
-        if: steps.api_health_check.outputs.response-status != 200
+      - name: Check Test Results
         run: |
-          echo "App health check (/api/health) returned ${{ steps.api_health_check.outputs.response-status }} HTTP code! Output: \n${{ steps.api_health_check.outputs.response-data }}"
-          exit 1
+          ${{ steps.test_results.outputs }}
+
+      # - name: Get Health Check via API
+      #   id: api_health_check
+      #   uses: muhfaris/request-action@v1
+      #   with:
+      #     url: http://localhost:5000/api/health
+      #     method: GET
+
+      # - name: Validate App Health Check API Call
+      #   if: steps.api_health_check.outputs.response-status != 200
+      #   run: |
+      #     echo "App health check (/api/health) returned ${{ steps.api_health_check.outputs.response-status }} HTTP code! Output: \n${{ steps.api_health_check.outputs.response-data }}"
+      #     exit 1
 
       # - name: Pull List of Alerts via API
       #   id: api_alerts
