@@ -7,7 +7,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env: {} # TODO
     steps:
       - name: Login to Local ACR
         uses: docker/login-action@v2
@@ -15,42 +14,68 @@ jobs:
           registry: ${{ vars.LOCAL_ACR_URL }}
           username: ${{ vars.LOCAL_ACR_USERNAME }}
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
+          
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
 
-      # TODO: Get meta info
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build & Push to Local ACR
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
-            # TODO: set tags here
-      
+            ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}
+
       - name: Login to Public ACR
         uses: docker/login-action@v2
         with:
           username: ${{ vars.PUBLIC_ACR_USERNAME }}
           password: ${{ secrets.PUBLIC_ACR_PASSWORD }}
 
-      # TODO: Get meta info
-
       - name: Build & Push to Public ACR
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
-            # TODO: set tags here
+            ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}
+            ${{ steps.meta.outputs.REPO_NAME }}:latest
 
+  notify:
+    runs-on: ubuntu-latest
+    if: job.status == 'success'
+    needs:
+      - release
+    steps:
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
 
-# Prod run
-# Build images and push to local ACR & public ACR
-# Notify user of successful build&push
+      - name: Notify Developer of Success
+        if: job.status == 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        with:
+          title: Gitea DevOps
+          message: ✅ Built & Pushed ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }} app!
+
+      - name: Notify Developer of Failure
+        if: job.status != 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        with:
+          title: Gitea DevOps
+          message: ❌ Unable to build & push ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+
