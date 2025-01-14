@@ -1,4 +1,4 @@
-name: Build & Test App
+name: Build/Push & Test App
 on:
   push:
     branches:
@@ -33,19 +33,66 @@ jobs:
           tags: |
             ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
 
-# Run automated tests on it
-#   - Perform API calls (grab list of alerts & jobs)
-#   - Perform API call on alert tests
-#   - Perform API call on job tests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Services & App
+        env:
+          HAWKUPS_ALERTS__example_webhook_alert__USER: 
+          HAWKUPS_ALERTS__example_webhook_alert__TOKEN: 
+          HAWKUPS_ALERTS__example_pushover_alert__USER: 
+          HAWKUPS_ALERTS__example_pushover_alert__TOKEN: 
+        run: bash local_run.sh
+      
+      - name: Get App Health
+        id: api_health_check
+        uses: muhfaris/request-action@v1
+        with:
+          url: http://localhost:5000/api/health
+          method: GET
 
-  # test:
-  #   runs-on: ubuntu-latest
+      - name: Validate App Health Check API Call
+        if: ${{ steps.api_health_check.outputs.response-status }} != 200
+        run: |
+          echo "App health check (/api/health) returned ${{ steps.api_health_check.outputs.response-status }} HTTP code! Output: \n${{ steps.api_health_check.outputs.response-data }}"
+          exit 1
+
+      - name: [API] Pull List of Alerts
+        id: api_alerts
+        uses: muhfaris/request-action@v1
+        with:
+          url: http://localhost:5000/api/alerts
+          method: GET
+
+      - name: Validate List of Alerts API Call
+        if: ${{ steps.api_alerts.outputs.response-status }} != 200
+        run: |
+          echo "App health check (/api/alerts) returned ${{ steps.api_alerts.outputs.response-status }} HTTP code! Output: \n${{ steps.api_alerts.outputs.response-data }}"
+          exit 1
+
+      - name: [API] Pull List of Jobs
+        id: api_jobs
+        uses: muhfaris/request-action@v1
+        with:
+          url: http://localhost:5000/api/jobs
+          method: GET
+
+      - name: Validate List of Jobs API Call
+        if: ${{ steps.api_jobs.outputs.response-status }} != 200
+        run: |
+          echo "App health check (/api/alerts) returned ${{ steps.api_jobs.outputs.response-status }} HTTP code! Output: \n${{ steps.api_jobs.outputs.response-data }}"
+          exit 1
+
+      # - name: [API] Test Alerts
+
+      # - name: [API] Test Jobs
 
   notify:
     runs-on: ubuntu-latest
     if: job.status == 'success'
     needs:
       - release
+      - test
     steps:
       - name: Get Meta
         id: meta
@@ -62,7 +109,7 @@ jobs:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
           title: Gitea DevOps
-          message: ✅ Built & tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
+          message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
       - name: Notify Developer of Failure
         if: job.status != 'success'
@@ -72,4 +119,4 @@ jobs:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
           title: Gitea DevOps
-          message: ❌ Unable to build & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+          message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
