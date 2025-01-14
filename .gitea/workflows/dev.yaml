@@ -52,7 +52,7 @@ jobs:
           method: GET
 
       - name: Validate App Health Check API Call
-        if: ${{ steps.api_health_check.outputs.response-status }} != 200
+        if: steps.api_health_check.outputs.response-status != 200
         run: |
           echo "App health check (/api/health) returned ${{ steps.api_health_check.outputs.response-status }} HTTP code! Output: \n${{ steps.api_health_check.outputs.response-data }}"
           exit 1
@@ -65,7 +65,7 @@ jobs:
           method: GET
 
       - name: Validate List of Alerts API Call
-        if: ${{ steps.api_alerts.outputs.response-status }} != 200
+        if: steps.api_alerts.outputs.response-status != 200
         run: |
           echo "App health check (/api/alerts) returned ${{ steps.api_alerts.outputs.response-status }} HTTP code! Output: \n${{ steps.api_alerts.outputs.response-data }}"
           exit 1
@@ -78,7 +78,7 @@ jobs:
           method: GET
 
       - name: Validate List of Jobs API Call
-        if: ${{ steps.api_jobs.outputs.response-status }} != 200
+        if: steps.api_jobs.outputs.response-status != 200
         run: |
           echo "App health check (/api/alerts) returned ${{ steps.api_jobs.outputs.response-status }} HTTP code! Output: \n${{ steps.api_jobs.outputs.response-data }}"
           exit 1
