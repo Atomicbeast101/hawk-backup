@@ -44,7 +44,7 @@ jobs:
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
         run: bash local_run.sh
       
-      - name: Get App Health
+      - name: Get Health Check via API
         id: api_health_check
         uses: muhfaris/request-action@v1
         with:
@@ -57,7 +57,7 @@ jobs:
           echo "App health check (/api/health) returned ${{ steps.api_health_check.outputs.response-status }} HTTP code! Output: \n${{ steps.api_health_check.outputs.response-data }}"
           exit 1
 
-      - name: [API] Pull List of Alerts
+      - name: Pull List of Alerts via API
         id: api_alerts
         uses: muhfaris/request-action@v1
         with:
@@ -70,7 +70,7 @@ jobs:
           echo "App health check (/api/alerts) returned ${{ steps.api_alerts.outputs.response-status }} HTTP code! Output: \n${{ steps.api_alerts.outputs.response-data }}"
           exit 1
 
-      - name: [API] Pull List of Jobs
+      - name: Pull List of Jobs via API
         id: api_jobs
         uses: muhfaris/request-action@v1
         with:
