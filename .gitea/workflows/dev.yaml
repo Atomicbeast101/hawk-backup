@@ -33,7 +33,7 @@ jobs:
           tags: |
             ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
 
-  test:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Start Services & App
@@ -92,7 +92,7 @@ jobs:
     if: job.status == 'success'
     needs:
       - release
-      - test
+      - tests
     steps:
       - name: Get Meta
         id: meta
