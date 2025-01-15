@@ -103,6 +103,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
+    if: always()
     needs:
       - release
       - tests

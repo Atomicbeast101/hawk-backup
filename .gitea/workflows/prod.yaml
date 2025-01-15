@@ -49,7 +49,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    if: job.status == 'success'
+    if: always()
     needs:
       - release
     steps:
