@@ -50,7 +50,7 @@ jobs:
       - name: Perform Tests
         id: test_results
         run: |
-          python3 -m pip install requests
+          apt install python3-requests -y
           python3 tests/tests.py
 
       - name: Stop if Tests Failed
