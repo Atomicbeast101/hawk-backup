@@ -15,10 +15,10 @@ def api_get(url):
             return True, r.json()
         else:
             print(f'Testing {url}...FAILED! Reason: {r.text}')
-            return False
+            return False, None
     except Exception as ex:
         print(f'ERROR: Unexpected exception threw when trying to make a GET API call! Reason: {str(ex)}\n{traceback.format_exc()}')
-    return False
+    return False, None
 
 def main():
     # Health Check
