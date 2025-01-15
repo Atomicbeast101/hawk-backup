@@ -60,6 +60,7 @@ jobs:
           exit 1
 
       - name: Cleanup
+        if: always()
         run: |
           docker compose stop
           docker compose rm -f
