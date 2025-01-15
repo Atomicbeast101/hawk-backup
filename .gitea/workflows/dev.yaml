@@ -107,7 +107,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    fail-fast: false
+    continue-on-error: true
     needs:
       - release
       - tests
