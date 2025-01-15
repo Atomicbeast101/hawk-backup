@@ -1,5 +1,3 @@
-results = {
-    'success': True
-}
+results = 'success'
 
 print(f'::set-output name=results::{results}')
