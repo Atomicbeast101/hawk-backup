@@ -107,7 +107,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    if: always()
+    fail-fast: false
     needs:
       - release
       - tests
