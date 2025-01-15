@@ -48,8 +48,8 @@ jobs:
         run: |
           bash local_run.sh standalone
           docker compose ps
-          docker compose stop
-          docker compose rm -f
+          docker network ls
+          docker inspect app -f "{{json .NetworkSettings.Networks }}"
       
       # - name: Perform Tests
       #   id: test_results
@@ -62,6 +62,12 @@ jobs:
       #   run: |
       #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
       #     exit 1
+
+      - name: Cleanup
+        run: |
+          docker compose stop
+          docker compose rm -f
+          rm -rf tests
 
   notify:
     runs-on: ubuntu-latest
