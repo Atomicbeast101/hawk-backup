@@ -61,6 +61,7 @@ jobs:
           exit 1
 
       - name: Cleanup Tests
+        continue-on-error: true
         run: bash devops_cleanup.sh
 
   notify:
