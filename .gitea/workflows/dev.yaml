@@ -77,6 +77,13 @@ jobs:
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
           echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
+      - name: test
+        run: |
+          echo ${{ job.status }}
+          echo ${{ needs.*.result }}
+          echo ${{ needs.release.result }}
+          echo ${{ needs.cleanup.result }}
+
       - name: Notify Developer of Success
         if: needs.release.result == 'success' && needs.cleanup.result == 'success'
         uses: umahmood/pushover-actions@main
