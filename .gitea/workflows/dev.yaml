@@ -49,7 +49,9 @@ jobs:
       
       - name: Perform Tests
         id: test_results
-        run: python3 tests/tests.py
+        run: |
+          python3 -m pip install requests
+          python3 tests/tests.py
 
       - name: Stop if Tests Failed
         if: steps.test_results.outputs.results != 'success'
