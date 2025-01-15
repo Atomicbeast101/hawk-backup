@@ -50,7 +50,7 @@ jobs:
       - name: Perform Tests
         id: test_results
         run: |
-          python3 -m pip install requests --break-system-packages
+          python3 -m pip install requests --break-system-packages > /dev/null 2>&1
           python3 tests/tests.py
 
       - name: Stop if Tests Failed
