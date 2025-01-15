@@ -8,5 +8,11 @@ mkdir -p tests/app/tmp
 # Copy config to tests/app
 cp --update=none settings.yml tests/app/config/settings.yml
 
-# Start docker containers
-docker compose up -d
+# Run containers locally
+if [ "$1" == "standalone" ]; then
+    echo "Starting containers [detached]..."
+    docker compose up -d
+else
+    echo "Starting containers [attached]..."
+    docker compose up
+fi

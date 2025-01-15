@@ -35,6 +35,8 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    needs:
+      - release
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -45,7 +47,11 @@ jobs:
           HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
           HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-        run: bash devops_start.sh
+        run: |
+          bash local_run.sh standalone
+          docker compose ps
+          docker compose stop
+          docker compose rm -f
       
       # - name: Perform Tests
       #   id: test_results
@@ -59,15 +65,10 @@ jobs:
       #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
       #     exit 1
 
-      - name: Cleanup Tests
-        if: always()
-        run: bash devops_cleanup.sh
-
   notify:
     runs-on: ubuntu-latest
     continue-on-error: true
     needs:
-      - release
       - tests
     steps:
       - name: Get Meta
