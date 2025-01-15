@@ -135,6 +135,7 @@ def main():
     app.add_url_rule('/api/health', view_func=api.health, methods=['GET'])
     app.add_url_rule('/api/jobs', view_func=api.jobs_list, methods=['GET'])
     app.add_url_rule('/api/jobs/<job_name>/start', view_func=api.jobs_start, methods=['POST'])
+    # app.add_url_rule('/api/jobs/<job_name>/status', view_func=api.jobs_status, methods=['GET'])
     app.add_url_rule('/api/alerts', view_func=api.alerts_list, methods=['GET'])
     app.add_url_rule('/api/alerts/<alert_name>/test', view_func=api.alerts_test, methods=['POST'])
 
