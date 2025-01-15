@@ -51,9 +51,11 @@ jobs:
         id: test_results
         run: python3 tests/tests.py
 
-      - name: Check Test Results
+      - name: Stop if Tests Failed
+        if: steps.test_results.outputs.results != 'success'
         run: |
-          echo "${{ steps.test_results.outputs.results }}"
+          echo "Tests failed! Please view logs under 'Perform Tests' tasks."
+          exit 1
 
       # - name: Get Health Check via API
       #   id: api_health_check
