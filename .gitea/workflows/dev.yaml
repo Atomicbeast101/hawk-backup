@@ -60,6 +60,15 @@ jobs:
           echo "Tests failed! Please view logs under 'Perform Tests' tasks."
           exit 1
 
+  cleanup:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      - tests
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
       - name: Cleanup Tests
         continue-on-error: true
         run: bash devops_cleanup.sh
@@ -69,7 +78,7 @@ jobs:
     continue-on-error: true
     needs:
       - release
-      - tests
+      - cleanup
     steps:
       - name: Get Meta
         id: meta
