@@ -49,11 +49,11 @@ jobs:
       
       - name: Perform Tests
         id: test_results
-        run: python3 tests/tests.py >> $GITHUB_OUTPUT
+        run: python3 tests/tests.py
 
       - name: Check Test Results
         run: |
-          echo "${{ steps.test_results.outputs.success }}"
+          echo "${{ steps.test_results.outputs.results }}"
 
       # - name: Get Health Check via API
       #   id: api_health_check
