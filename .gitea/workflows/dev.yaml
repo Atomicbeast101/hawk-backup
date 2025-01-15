@@ -45,23 +45,19 @@ jobs:
           HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
           HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-        run: |
-          bash local_run.sh standalone
-          docker compose ps
-          docker network ls
-          docker inspect app -f "{{json .NetworkSettings.Networks }}"
+        run: bash local_run.sh standalone
       
-      # - name: Perform Tests
-      #   id: test_results
-      #   run: |
-      #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-      #     python3 tests/tests.py
+      - name: Perform Tests
+        id: test_results
+        run: |
+          python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+          python3 tests/tests.py
 
-      # - name: Stop if Tests Failed
-      #   if: steps.test_results.outputs.results != 'success'
-      #   run: |
-      #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
-      #     exit 1
+      - name: Stop if Tests Failed
+        if: steps.test_results.outputs.results != 'success'
+        run: |
+          echo "Tests failed! Please view logs under 'Perform Tests' tasks."
+          exit 1
 
       - name: Cleanup
         run: |
