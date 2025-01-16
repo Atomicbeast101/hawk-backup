@@ -3,7 +3,7 @@ import traceback
 import requests
 
 # Attributes
-API_ENDPOINT = 'http://app:5000/api'
+API_ENDPOINT = 'http://localhost:5000/api'
 
 # Main
 def api_get(url):
