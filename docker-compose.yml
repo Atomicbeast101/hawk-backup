@@ -13,8 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    networks:
-      - app
+    # networks:
+    #   - app
   postgresql:
     container_name: postgresql
     image: postgres:latest
@@ -26,8 +26,8 @@ services:
       - ./tests/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
     # ports:
     #   - 5432:5432
-    networks:
-      - app
+    # networks:
+    #   - app
   mysql:
     container_name: mysql
     image: mysql:latest
@@ -37,8 +37,8 @@ services:
       - ./tests/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
     # ports:
     #   - 3306:3306
-    networks:
-      - app
+    # networks:
+    #   - app
   mongodb:
     container_name: mongodb
     image: mongo:latest
@@ -50,8 +50,8 @@ services:
       - ./tests/mongodb-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     # ports: 
     #   - 27017:27017
-    networks:
-      - app
+    # networks:
+    #   - app
   # ubuntu:
   #   container_name: ubuntu
   #   build:
@@ -81,8 +81,8 @@ services:
       - mysql
       - mongodb
       # - ubuntu
-    networks:
-      - app
+    # networks:
+    #   - app
 
-networks:
-  app:
+# networks:
+#   app:
