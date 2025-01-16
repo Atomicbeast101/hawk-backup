@@ -3,7 +3,8 @@ import traceback
 import requests
 
 # Attributes
-API_ENDPOINT = 'http://127.0.0.1:5000/api'
+IP_ADDRESS = requests.get('https://ipinfo.potatolab.dev/json').json()['ip']
+API_ENDPOINT = f'http://{IP_ADDRESS}:5000/api'
 
 # Main
 def api_get(url):
