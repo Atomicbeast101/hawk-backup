@@ -1,6 +1,6 @@
 # HawkBackup
 
-Single platform based Docker container that performs automated database and file-based backups from various servers and pushes them to an external destination such as SFTP endpoint. This was built to make the whole backup setup as convenient as possible without having to add additional services on every server hosting database or files.
+Single platform that performs automated database and file-based backups from various servers and pushes them to an internal/external destination such as SFTP endpoint. This was built to make the whole backup setup as convenient as possible without having to add additional services on every server hosting database or files. All configuration is done via a simple YAML config file and no dependencies are needed on clients to perform these backups.
 
 ## Features
 
