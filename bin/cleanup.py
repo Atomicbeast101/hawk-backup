@@ -1,4 +1,5 @@
 # Imports
+import bin.config
 import datetime
 import pysftp
 import os
@@ -33,6 +34,23 @@ class CleanUp:
         except Exception as ex:
             raise Exception(f'Error when trying to cleanup the SFTP endpoint: {str(ex)}')
 
+    def _cleanup_local(self, retention_level, retention_number, remote_path):
+        try:
+            oldest_ts = self._get_oldest_ts(retention_level, retention_number)
+
+            self._log.debug(f'Cleaning up old files older than {oldest_ts} in local {remote_path}...')
+            files_removed = 0
+            for file in os.listdir(remote_path):
+                if os.path.isfile(os.path.join(remote_path, file)):
+                    file_datetime = datetime.datetime.strptime(file.split('.zip')[0], '%Y-%m-%d_%H-%M-%S')
+                    if oldest_ts > file_datetime:
+                        os.remove(os.path.join(remote_path, file))
+                        files_removed += 1
+                        self._log.debug(f'Removed {os.path.join(remote_path, file)} from local {remote_path} as it passed the retention policy.')   
+            self._log.info(f'Cleaned up {files_removed} from local {remote_path}!')
+        except Exception as ex:
+            raise Exception(f'Error when trying to cleanup the local: {str(ex)}')
+
     def run(self, name, retention, destination):
         if 'sftp' in destination:
             self._cleanup_sftp(
@@ -41,6 +59,12 @@ class CleanUp:
                 server=destination['sftp']['server'],
                 port=destination['sftp']['port'],
                 username=str(destination['sftp']['username']),
-                password=self._global_func.get_destination_password(destination['sftp'], 'jobs', name),
+                password=self._global_func.get_destination_password(destination['sftp'], name),
                 remote_path=os.path.join(destination['sftp']['path'], name)
+            )
+        elif 'local' in destination:
+            self._cleanup_local(
+                retention_level=retention['level'],
+                retention_number=retention['number'],
+                remote_path=os.path.join(bin.config.LOCAL_PATH, name)
             )

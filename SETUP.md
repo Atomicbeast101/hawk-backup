@@ -1,8 +1,14 @@
 ## Volumes
 
 * `/config` = Directory where `settings.yml` configuration file will be stored in.
-* `/log` = Directory where logs will be generated and stored.
+* `/log` = OPTIONAL: Directory where logs will be generated and stored.
 * `/tmp` = Directory where backup activites will be performed in. This size will depend on how much data from databases or files that needs to be backed up. This directory will be cleaned up after every backup activity.
+* `/backups` = OPTIONAL: Directory where all backups will be stored if a job has a `directory` based destination.
+
+## Exposed Ports
+
+* `5000/tcp` = API endpoint for the application to view status of jobs or to manually start them.
+* `9100/tcp` = Promtheus exporter, unless `port` is defined different in `settings.yml` config.
 
 ## Environment Variables
 
@@ -71,12 +77,16 @@ jobs:
 Environment variable: `HAWKUPS_JOBS__example_podb_server__PASSWORD`
 
 ## Starting Application
+
+> Highly recommend using docker approach as all of my testing & personal use has been in Docker containers.
+
 ### Docker
 ```bash
 docker run --name backup \
     -v ./path/to/config:/config \
     -v ./path/to/log:/log \
     -v ./path/to/tmp:/tmp \
+    -v ./path/to/backups:/backups \
     -e HAWKUPS_LOG_LEVEL=INFO \
     -p 5000:5000 \
     -p 9100:9100 \
@@ -95,7 +105,16 @@ services:
             - ./path/to/config:/config
             - ./path/to/log:/log
             - ./path/to/tmp:/tmp
+            - ./path/to/backups:/backups
         ports:
             - 5000:5000
             - 9100:9100
+```
+
+### Run Locally (Linux)
+```bash
+git clone https://github.com/Atomicbeast101/hawk-backup.git
+cd hawk-backup
+python3 -m pip install -r /pip_packages.txt
+gunicorn -b 0.0.0.0:5000 app:app
 ```

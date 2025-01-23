@@ -16,6 +16,8 @@ LOG_TYPES = ['both', 'file', 'syslog']
 LOG_TYPE = os.environ['HAWKUPS_LOG_TYPE'] if os.environ.get('HAWKUPS_LOG_TYPE') else 'file'
 LOG_LEVEL = os.environ['HAWKUPS_LOG_LEVEL'] if os.environ.get('HAWKUPS_LOG_LEVEL') else 'DEBUG'
 LOG_SERVER = os.environ['HAWKUPS_LOG_SERVER'] if os.environ.get('HAWKUPS_LOG_SERVER') else None
+## Destinations
+LOCAL_PATH = '/backups'
 ## PostgreSQL
 POSTGRESQL_SQL_GET_LIST_OF_DATABASES = "SELECT datname FROM pg_database WHERE datname <> ALL ('{{{databases}}}') ORDER BY datname;"
 POSTGRESQL_DEFAULT_EXCLUDES = [
@@ -23,6 +25,7 @@ POSTGRESQL_DEFAULT_EXCLUDES = [
     'template1',
     'postgres'
 ]
+## MariaDB/MySQL
 MYSQL_SQL_GET_LIST_OF_DATABASES = "SHOW DATABASES WHERE `Database` NOT IN ({databases});"
 MYSQL_DEFAULT_EXCLUDES = [
     'information_schema',
@@ -111,13 +114,13 @@ class Config:
                     server = dest['sftp']['server']
                     port = dest['sftp']['port']
                     username = str(dest['sftp']['username'])
-                    password = self._global_func.get_destination_password(dest['sftp'], 'destinations', name)
+                    password = self._global_func.get_destination_password(dest['sftp'], name)
                     try:
                         with pysftp.Connection(server, port=port, username=username, password=password, cnopts=sftp_options):
-                            self._log.debug(f'Successfully made a test connection to SFTP endpoint ({server}) [{name}]')
+                            self._log.debug(f'Successfully made a test connection to SFTP endpoint ({server}) [{name}]!')
                     except Exception as ex:
                         raise Exception(f'Unable to connect to SFTP endpoint ({server}) [{name}]. Reason: {str(ex)}')
-                ### TODO: more destination connections to test
+                ### Test local - nothing to test, /backups folder gets auto-generated in Dockerfile
 
             return True, config
         except Exception as ex:

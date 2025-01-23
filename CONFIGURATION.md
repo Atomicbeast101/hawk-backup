@@ -54,7 +54,7 @@ alerts:
 destinations:
   # Required: Name that can only be alphanumeric, "-" and "_" symbols
   - name: example-sftp-server
-    # Supported types: sftp
+    # Supported types: sftp, local
     sftp:
       # Required: SFTP FQDN or IP Address endpoint
       server: sftp
@@ -66,6 +66,13 @@ destinations:
       password: 1234
       # Required: Path in SFTP endpoint, unsure? Use / instead
       path: /upload
+    # Required: Default timeframe of backups to keep up to. Daily is only supported at the moment.
+    retention: 7d
+  
+  # Required: Name that can only be alphanumeric, "-" and "_" symbols
+  - name: example-local-server
+    # Supported types: sftp, local
+    local: {}
     # Required: Default timeframe of backups to keep up to. Daily is only supported at the moment.
     retention: 7d
 
@@ -127,7 +134,26 @@ jobs:
       # Required: List of database to not include in the backup (can be set empty if none).
       excludes: []
     # Required: Name of destination to send backups to. Name must exist under destinations section above.
-    destination: example-sftp-server
+    destination: example-local-server
+    # Optional: Name of alert to notify user(s) of backup status. Name must exist under alerts section above.
+    alert: example-webhook-alert
+
+  # Required: Name that can only be alphanumeric, "-" and "_" symbols
+  - name: example-files-host
+    files:
+      # Required: SSH host FQDN or IP Address endpoint
+      host: ubuntu
+      # Required: SSH host port between 1 and 65535
+      port: 22
+      # Required: SSH username
+      username: root
+      # Optional: SSH password defined here or via environment variable (example: HAWKBACKUP_JOBS__example_files_host__PASSWORD)
+      password: 1234
+      # Required: List of directories to backup
+      paths:
+        - /home/ubuntu
+    # Required: Name of destination to send backups to. Name must exist under destinations section above.
+    destination: example-local-server
     # Optional: Name of alert to notify user(s) of backup status. Name must exist under alerts section above.
     alert: example-webhook-alert
 ```

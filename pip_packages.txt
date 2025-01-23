@@ -7,7 +7,6 @@ celery[redis]
 apscheduler
 notifiers
 gunicorn
-paramiko
 yamale
 pysftp
 psutil

@@ -4,6 +4,7 @@ FROM python:3.10-slim
 RUN mkdir /app
 RUN mkdir /log
 RUN mkdir /config
+RUN mkdir /backups
 COPY apt_packages.txt /
 RUN apt-get update && apt-get install $(cat /apt_packages.txt) -y
 COPY pip_packages.txt /

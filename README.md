@@ -21,15 +21,16 @@ Single platform based Docker container that performs automated database and file
 | PostgreSQL    | N/A         |
 | MySQL/MariaDB | N/A         |
 | MongoDB       | N/A         |
+| Files         | N/A         |
 
 ## Destinations Supported
 
 | Destinations | Limitations |
 | :----------- | ----------- |
 | SFTP         | N/A         |
+| Directory    | N/A         |
 
 ## Future Plans
 
-* File-based backup via BorgBackup (determining how to address SFTP limitation with BorgBackup)
 * Perform ansible playbooks to backup odd-end things such as network equipment (switches, routers, etc.)
-* Expand destination options outside of SFTPW
+* Expand destination options outside of SFTP & Directory.

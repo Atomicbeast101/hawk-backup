@@ -1,10 +1,11 @@
 FROM ubuntu:latest
 
 # Setup
-RUN apt update && apt install -y openssh-server
-RUN useradd -m -s /bin/bash example && echo "1234" | chpasswd && usermod -aG sudo example
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+RUN echo 'root:1234' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Start
 EXPOSE 22
-CMD ["service", "ssh", "start"]
+CMD ["/usr/sbin/sshd", "-D"]

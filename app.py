@@ -3,7 +3,7 @@ import bin.databases
 import bin.metrics
 import bin.config
 import bin.alerts
-# import bin.files
+import bin.files
 import bin.api
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging.handlers
@@ -72,10 +72,10 @@ class GlobalFunctions:
                 raise Exception(f'"password" isn\'t set in settings.yml for {name} or "{env}" doesn\'t exist for it!')
 
     def get_destination_password(self, data, destination_name):
-        self._get_password(data, 'destinations', destination_name)
+        return self._get_password(data, 'destinations', destination_name)
 
     def get_job_password(self, data, job_name):
-        self._get_password(data, 'jobs', job_name)
+        return self._get_password(data, 'jobs', job_name)
 
     def _get_envs(self, env_filter):
         envs = []
@@ -123,9 +123,9 @@ def main():
         elif 'mongodb' in job_config:
             job = bin.databases.MongoDB(log, global_func, name, config, job_config, alerts)
             scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
-        # elif 'ansible' in job_config:
-        #         job = bin.ansible.Ansible(log, global_func, name, config, job_config, alerts)
-        #         scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
+        elif 'files' in job_config:
+            job = bin.files.Files(log, global_func, name, config, job_config, alerts)
+            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
         else:
             log.warning(f'Unrecognized backup type for {name}, ignoring...')
     scheduler.start()

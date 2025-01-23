@@ -18,7 +18,7 @@ class PostgreSQL(Service):
         self._server = job_config['postgresql']['server']
         self._port = job_config['postgresql']['port']
         self._username = str(job_config['postgresql']['username'])
-        self._password = self._global_func.get_job_password(job_config['postgresql'], 'jobs', name)
+        self._password = self._global_func.get_job_password(job_config['postgresql'], name)
         self._ssl = job_config['postgresql']['ssl']
         excludes = bin.config.POSTGRESQL_DEFAULT_EXCLUDES
         excludes.extend(job_config['postgresql']['excludes'])
@@ -115,6 +115,8 @@ class PostgreSQL(Service):
         except Exception as ex:
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
+            # Cleanup temp folder to avoid data being left in /tmp after a failed backup
+            self._cleanup_temp_folder()
 
 class MySQL(Service):
     def __init__(self, log, global_func, name, config, job_config, alerts):
@@ -125,7 +127,7 @@ class MySQL(Service):
         self._server = job_config['mysql']['server']
         self._port = job_config['mysql']['port']
         self._username = str(job_config['mysql']['username'])
-        self._password = self._global_func.get_job_password(job_config['mysql'], 'jobs', name)
+        self._password = self._global_func.get_job_password(job_config['mysql'], name)
         excludes = bin.config.MYSQL_DEFAULT_EXCLUDES
         excludes.extend(job_config['mysql']['excludes'])
         self._excludes = excludes
@@ -221,6 +223,8 @@ class MySQL(Service):
         except Exception as ex:
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
+            # Cleanup temp folder to avoid data being left in /tmp after a failed backup
+            self._cleanup_temp_folder()
 
 class MongoDB(Service):
     def __init__(self, log, global_func, name, config, job_config, alerts):
@@ -231,7 +235,7 @@ class MongoDB(Service):
         self._server = job_config['mongodb']['server']
         self._port = job_config['mongodb']['port']
         self._username = str(job_config['mongodb']['username'])
-        self._password = self._global_func.get_job_password(job_config['mongodb'], 'jobs', name)
+        self._password = self._global_func.get_job_password(job_config['mongodb'], name)
         self._excludes = job_config['mongodb']['excludes']
         self._destination = self._get_destination(job_config['destination'])
         self._retention = self._convert_retention(job_config['retention']) if 'retention' in job_config else self._convert_retention(self._get_destination(job_config['destination'])['retention'])
@@ -304,3 +308,5 @@ class MongoDB(Service):
         except Exception as ex:
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
+            # Cleanup temp folder to avoid data being left in /tmp after a failed backup
+            self._cleanup_temp_folder()

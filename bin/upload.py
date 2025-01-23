@@ -1,5 +1,7 @@
 # Imports
+import bin.config
 import pysftp
+import shutil
 import os
 
 # Class
@@ -25,6 +27,19 @@ class Upload:
         except Exception as ex:
             raise Exception(f'Error when trying to upload to SFTP endpoint: {str(ex)}')
 
+    def _push_to_local(self, local_file, remote_path):
+        try:
+            head, tail = os.path.split(local_file)
+            remote_file = os.path.join(remote_path, tail)
+
+            self._log.debug(f'Copying {local_file} to {remote_path} local...')
+            if not os.path.exists(remote_path):
+                os.mkdir(remote_path)
+                self._log.debug(f'Created {remote_path} local directory as it did not exist!')
+            shutil.copyfile(local_file, remote_file)
+        except Exception as ex:
+            raise Exception(f'Error when trying to upload to local ({remote_path}): {str(ex)}')
+
     def run(self, name, local_file, destination):
         if 'sftp' in destination:
             self._push_to_sftp(
@@ -32,6 +47,11 @@ class Upload:
                 server=destination['sftp']['server'],
                 port=destination['sftp']['port'],
                 username=str(destination['sftp']['username']),
-                password=self._global_func.get_destination_password(destination['sftp'], 'jobs', name),
+                password=self._global_func.get_destination_password(destination['sftp'], name),
                 remote_path=os.path.join(destination['sftp']['path'], name)
+            )
+        elif 'local' in destination:
+            self._push_to_local(
+                local_file=local_file,
+                remote_path=os.path.join(bin.config.LOCAL_PATH, name)
             )

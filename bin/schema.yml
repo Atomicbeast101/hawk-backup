@@ -15,16 +15,17 @@ alert:
 
 alert_webhook:
   url: str()
-  data: map(required=True)
+  data: map()
 
 alert_notifiers:
   type: str()
-  data: map(required=True)
+  data: map()
 
 destination:
   name: regex('^[a-zA-Z0-9-_].*$')
   sftp: include('destination_sftp', required=False)
-  retention: regex('^[0-9]+d$', required=False)
+  local: map(required=False)
+  retention: regex('^[0-9]+d$', required=True)
 
 destination_sftp:
   server: str()
@@ -38,7 +39,7 @@ job:
   postgresql: include('job_postgresql', required=False)
   mysql: include('job_mysql', required=False)
   mongodb: include('job_mongodb', required=False)
-  # files: include('job_ansible', required=False)
+  files: include('job_files', required=False)
   destination: str()
   retention: regex('^[0-9]+d$', required=False)
   alert: str(required=False)
@@ -65,8 +66,9 @@ job_mongodb:
   password: any(int(), str(), required=False)
   excludes: list()
 
-# job_ansible:
-#   host: str()
-#   port: int(min=1, max=65535)
-#   username: any(int(), str())
-#   password: any(int(), str(), required=False)
+job_files:
+  host: str()
+  port: int(min=1, max=65535)
+  username: any(int(), str())
+  password: any(int(), str(), required=False)
+  paths: list()

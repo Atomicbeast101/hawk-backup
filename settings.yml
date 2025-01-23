@@ -27,8 +27,11 @@ destinations:
       server: sftp
       port: 22
       username: example
-      password: 1234 # or environment variable: HAWKUPS_DESTINATIONS__example-sftp-server__PASSWORD
+      password: 1234 # or environment variable: HAWKUPS_DESTINATIONS__example_sftp_server__PASSWORD
       path: /upload
+    retention: 7d
+  - name: example-local-server
+    local: {}
     retention: 7d
 
 jobs:
@@ -37,7 +40,7 @@ jobs:
       server: postgresql
       port: 5432
       username: bckupmgr
-      password: 1234 # or environment variable: HAWKUPS_JOBS__example-podb-server__PASSWORD
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example_podb_server__PASSWORD
       ssl: disable
       excludes: []
     destination: example-sftp-server
@@ -48,7 +51,7 @@ jobs:
       server: mysql
       port: 3306
       username: root
-      password: 1234 # or environment variable: HAWKUPS_JOBS__example-mydb-server__PASSWORD
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example_mydb_server__PASSWORD
       excludes: []
     destination: example-sftp-server
     alert: example-webhook-alert
@@ -57,16 +60,18 @@ jobs:
       server: mongodb
       port: 27017
       username: root
-      password: 1234 # or environment variable: HAWKUPS_JOBS__example-modb-server__PASSWORD
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example_modb_server__PASSWORD
       excludes: []
-    destination: example-sftp-server
+    destination: example-local-server
     alert: example-webhook-alert
-  # - name: host-ansible-example
-  #   ansible:
-  #     host: hostfiles
-  #     port: 22
-  #     username: example
-  #     password: 1234
-  #     playbook: playbook.yml
-  #   destination: example-sftp-server
-  #   alert: example-webhook-alert
+  - name: example-files-host
+    files:
+      host: ubuntu
+      port: 22
+      username: root
+      password: 1234 # or environment variable: HAWKUPS_JOBS__example_files_hosts__PASSWORD
+      paths:
+        - /home/example
+        - /var/log/lastlog
+    destination: example-local-server
+    alert: example-webhook-alert

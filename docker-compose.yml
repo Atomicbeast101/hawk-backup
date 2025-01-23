@@ -52,15 +52,15 @@ services:
     #   - 27017:27017
     networks:
       - app
-  # ubuntu:
-  #   container_name: ubuntu
-  #   build:
-  #     context: tests/
-  #     dockerfile: Dockerfile_ubuntu
-  #   ports:
-  #     - 22:22
-  #   networks:
-  #     - app
+  ubuntu:
+    container_name: ubuntu
+    build:
+      context: tests/
+      dockerfile: Dockerfile_ubuntu
+    ports:
+      - 22:22
+    networks:
+      - app
   app:
     container_name: app
     restart: no
@@ -72,6 +72,7 @@ services:
       - ./tests/app/config:/config
       - ./tests/app/log:/log
       - ./tests/app/tmp:/tmp
+      - ./tests/app/backups:/backups
     ports:
       - 5000:5000
       # - 9100:9100
@@ -80,7 +81,7 @@ services:
       - postgresql
       - mysql
       - mongodb
-      # - ubuntu
+      - ubuntu
     networks:
       - app
 
