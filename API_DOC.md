@@ -42,6 +42,20 @@ Status of the backup jobs along with the timestamp of its next run.
 }
 ```
 
+### GET /api/jobs/\<job_name>/status
+
+Get status of a job.
+
+```bash
+> curl -X POST http://localhost:5000/api/jobs/example-podb-server/start
+{
+  "active": true,
+  "status": "not_running",
+  "name": "example-podb-server",
+  "next_run": "Wed, 08 Jan 2025 00:00:00 GMT"
+}
+```
+
 ### POST /api/jobs/\<job_name>/start
 
 Manually run a backup job.

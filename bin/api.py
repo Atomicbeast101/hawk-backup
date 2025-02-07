@@ -15,7 +15,7 @@ class API:
     def health(self):
         try:
             return flask.jsonify({
-                'success': True
+                'healthy': True
             }), 200
         except Exception as ex:
             self._log.error(f'There is a problem with /api/health API endpoint! Reason: {str(ex)}\n{traceback.format_exc()}')
@@ -43,6 +43,29 @@ class API:
             self._log.error(f'There is a problem with /api/jobs API endpoint! Reason: {str(ex)}\n{traceback.format_exc()}')
             return flask.jsonify({
                 'reason': f'There is a problem with /api/jobs API endpoint! Please see logs for details.'
+            }), 500
+
+    def jobs_status(self, job_name):
+        try:
+            job = self._scheduler.get_job(job_name)
+
+            # Check if job ID exists
+            if not job:
+                return flask.jsonify({
+                    'reason': f'Job {job_name} does not exist!'
+                }), 400
+
+            return flask.jsonify({
+                'name': job.id,
+                'active': job and job.next_run_time is not None,
+                'next_run': job.next_run_time,
+                'status': self._job_status[job.id]
+            }), 200
+        
+        except Exception as ex:
+            self._log.error(f'There is a problem with /api/jobs/{job_name}/status API endpoint! Reason: {str(ex)}\n{traceback.format_exc()}')
+            return flask.jsonify({
+                'reason': f'There is a problem with /api/jobs/{job_name}/status API endpoint! Please see logs for details.'
             }), 500
 
     def jobs_start(self, job_name):
