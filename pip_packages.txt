@@ -4,6 +4,7 @@ ansible-pylibssh
 psycopg2-binary
 ansible_runner
 celery[redis]
+smbprotocol
 apscheduler
 notifiers
 gunicorn

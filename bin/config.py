@@ -1,4 +1,5 @@
 # Imports
+import smbprotocol
 import notifiers
 import yamale
 import pysftp
@@ -121,6 +122,18 @@ class Config:
                     except Exception as ex:
                         raise Exception(f'Unable to connect to SFTP endpoint ({server}) [{name}]. Reason: {str(ex)}')
                 ### Test local - nothing to test, /backups folder gets auto-generated in Dockerfile
+                ### Test SMB connection
+                # elif 'smb' in dest:
+                #     try:
+                #         client = smbprotocol.SMBClient(
+                #             server_name=dest['smb']['server'],
+                #             port=dest['smb']['port'],
+                #             username=dest['smb']['username'],
+                #             password=self._global_func.get_destination_password(dest['smb'], name)
+                #         )
+                #         client.connect()
+                #     except Exception as ex:
+                #         raise Exception(f'Unable to connect to SMB endpoint ({server}) [{name}]. Reason: {str(ex)}')
 
             return True, config
         except Exception as ex:

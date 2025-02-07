@@ -1,5 +1,6 @@
 # Imports
 import bin.config
+import smbprotocol
 import datetime
 import pysftp
 import os
@@ -51,6 +52,9 @@ class CleanUp:
         except Exception as ex:
             raise Exception(f'Error when trying to cleanup the local: {str(ex)}')
 
+    # def _cleanup_smb(self, retention_level, retention_number, server, port, username, password, remote_path):
+    #     print() # TODO
+
     def run(self, name, retention, destination):
         if 'sftp' in destination:
             self._cleanup_sftp(
@@ -68,3 +72,13 @@ class CleanUp:
                 retention_number=retention['number'],
                 remote_path=os.path.join(bin.config.LOCAL_PATH, name)
             )
+        # elif 'smb' in destination:
+        #     self._cleanup_smb(
+        #         retention_level=retention['level'],
+        #         retention_number=retention['number'],
+        #         server=destination['smb']['server'],
+        #         port=destination['smb']['port'],
+        #         username=str(destination['smb']['username']),
+        #         password=self._global_func.get_destination_password(destination['smb'], name),
+        #         remote_path=os.path.join(destination['smb']['path'], name)
+        #     )

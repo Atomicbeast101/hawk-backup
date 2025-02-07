@@ -33,6 +33,14 @@ destinations:
   - name: example-local-server
     local: {}
     retention: 7d
+  # - name: example-smb-server
+  #   smb:
+  #     server: smb
+  #     port: 445
+  #     username: example
+  #     password: 1234 # or environment variable: HAWKUPS_DESTINATIONS__example_smb_server__PASSWORD
+  #     path: /upload
+  #   retention: 7d
 
 jobs:
   - name: example-podb-server
@@ -53,7 +61,7 @@ jobs:
       username: root
       password: 1234 # or environment variable: HAWKUPS_JOBS__example_mydb_server__PASSWORD
       excludes: []
-    destination: example-sftp-server
+    destination: example-sftp-server # example-smb-server
     alert: example-webhook-alert
   - name: example-modb-server
     mongodb:

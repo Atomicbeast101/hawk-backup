@@ -24,6 +24,7 @@ alert_notifiers:
 destination:
   name: regex('^[a-zA-Z0-9-_].*$')
   sftp: include('destination_sftp', required=False)
+  # smb: include('destination_smb', required=False)
   local: map(required=False)
   retention: regex('^[0-9]+d$', required=True)
 
@@ -33,6 +34,13 @@ destination_sftp:
   username: any(int(), str())
   password: any(int(), str(), required=False)
   path: str()
+
+# destination_smb:
+#   server: str()
+#   port: int(min=1, max=65535)
+#   username: any(int(), str())
+#   password: any(int(), str(), required=False)
+#   path: str()
 
 job:
   name: regex('^[a-zA-Z0-9-_].*$')

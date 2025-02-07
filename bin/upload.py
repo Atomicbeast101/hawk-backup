@@ -1,5 +1,6 @@
 # Imports
 import bin.config
+import smbprotocol
 import pysftp
 import shutil
 import os
@@ -40,6 +41,9 @@ class Upload:
         except Exception as ex:
             raise Exception(f'Error when trying to upload to local ({remote_path}): {str(ex)}')
 
+    # def _push_to_smb(self, local_file, server, port, username, password, remote_path):
+    #     print() # TODO
+
     def run(self, name, local_file, destination):
         if 'sftp' in destination:
             self._push_to_sftp(
@@ -55,3 +59,12 @@ class Upload:
                 local_file=local_file,
                 remote_path=os.path.join(bin.config.LOCAL_PATH, name)
             )
+        # elif 'smb' in destination:
+        #     self._push_to_smb(
+        #         local_file=local_file,
+        #         server=destination['smb']['server'],
+        #         port=destination['smb']['port'],
+        #         username=str(destination['smb']['username']),
+        #         password=self._global_func.get_destination_password(destination['smb'], name),
+        #         remote_path=os.path.join(destination['smb']['path'], name)
+        #     )
