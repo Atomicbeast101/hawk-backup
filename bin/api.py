@@ -5,10 +5,11 @@ import flask
 
 # Class
 class API:
-    def __init__(self, log, scheduler, alerts):
+    def __init__(self, log, scheduler, job_status, alerts):
         self._log = log
 
         self._scheduler = scheduler
+        self._job_status = job_status
         self._alerts = alerts
 
     def health(self):
@@ -33,7 +34,8 @@ class API:
                 data['jobs'].append({
                     'name': job.id,
                     'active': job and job.next_run_time is not None,
-                    'next_run': job.next_run_time
+                    'next_run': job.next_run_time,
+                    'status': self._job_status[job.id]
                 })
 
             return flask.jsonify(data), 200
@@ -57,6 +59,12 @@ class API:
             if not (job and job.next_run_time is not None):
                 return flask.jsonify({
                     'reason': f'Job {job_name} is not active! Please check logs for more details.'
+                }), 400
+
+            # Check if job is running
+            if self._job_status[job.id] == 'running':
+                return flask.jsonify({
+                    'reason': f'Job {job_name} is already running! Please wait till its done.'
                 }), 400
 
             # Start job

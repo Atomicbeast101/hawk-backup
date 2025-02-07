@@ -112,26 +112,31 @@ def main():
 
     # Jobs
     scheduler = BackgroundScheduler()
+    job_status = {}
     for job_config in config['jobs']:
         name = job_config['name']
         if 'postgresql' in job_config:
             job = bin.databases.PostgreSQL(log, global_func, name, config, job_config, alerts)
-            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
+            job_status[name] = 'not_running'
+            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name, args=[job_status])
         elif 'mysql' in job_config:
             job = bin.databases.MySQL(log, global_func, name, config, job_config, alerts)
-            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
+            job_status[name] = 'not_running'
+            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name, args=[job_status])
         elif 'mongodb' in job_config:
             job = bin.databases.MongoDB(log, global_func, name, config, job_config, alerts)
-            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
+            job_status[name] = 'not_running'
+            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name, args=[job_status])
         elif 'files' in job_config:
             job = bin.files.Files(log, global_func, name, config, job_config, alerts)
-            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name)
+            job_status[name] = 'not_running'
+            scheduler.add_job(job.backup, 'cron', hour=0, minute=0, id=name, args=[job_status])
         else:
             log.warning(f'Unrecognized backup type for {name}, ignoring...')
     scheduler.start()
 
     # API
-    api = bin.api.API(log, scheduler, alerts)
+    api = bin.api.API(log, scheduler, job_status, alerts)
     app.add_url_rule('/api/health', view_func=api.health, methods=['GET'])
     app.add_url_rule('/api/jobs', view_func=api.jobs_list, methods=['GET'])
     app.add_url_rule('/api/jobs/<job_name>/start', view_func=api.jobs_start, methods=['POST'])

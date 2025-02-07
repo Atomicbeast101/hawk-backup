@@ -83,8 +83,10 @@ class PostgreSQL(Service):
         except Exception as ex:
             raise Exception(f'Unable to prune old backups [{self._name}]! Reason: {str(ex)}')
 
-    def backup(self):
+    def backup(self, job_status):
         try:
+            job_status[self._name] = 'running'
+
             # Create temp folder to dump SQL files to
             self._create_temp_folder()
 
@@ -111,8 +113,11 @@ class PostgreSQL(Service):
 
             self._alert.success(self._name)
             self._log.info(f'Successfully backed up {self._type} database: {self._name}!')
+            job_status[self._name] = 'not_running'
 
         except Exception as ex:
+            job_status[self._name] = 'failed'
+
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
             # Cleanup temp folder to avoid data being left in /tmp after a failed backup
@@ -191,8 +196,10 @@ class MySQL(Service):
         except Exception as ex:
             raise Exception(f'Unable to prune old backups [{self._name}]! Reason: {str(ex)}')
 
-    def backup(self):
+    def backup(self, job_status):
         try:
+            job_status[self._name] = 'running'
+
             # Create temp folder to dump SQL files to
             self._create_temp_folder()
 
@@ -219,8 +226,11 @@ class MySQL(Service):
 
             self._alert.success(self._name)
             self._log.info(f'Successfully backed up {self._type} database: {self._name}!')
+            job_status[self._name] = 'not_running'
 
         except Exception as ex:
+            job_status[self._name] = 'failed'
+
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
             # Cleanup temp folder to avoid data being left in /tmp after a failed backup
@@ -279,8 +289,10 @@ class MongoDB(Service):
         except Exception as ex:
             raise Exception(f'Unable to prune old backups [{self._name}]! Reason: {str(ex)}')
 
-    def backup(self):
+    def backup(self, job_status):
         try:
+            job_status[self._name] = 'running'
+
             # Create temp folder to dump SQL files to
             self._create_temp_folder()
 
@@ -304,8 +316,11 @@ class MongoDB(Service):
             
             self._alert.success(self._name)
             self._log.info(f'Successfully backed up {self._type} database: {self._name}!')
+            job_status[self._name] = 'not_running'
 
         except Exception as ex:
+            job_status[self._name] = 'failed'
+
             self._alert.failed(self._name)
             self._log.error(f'{str(ex)}\n{traceback.format_exc()}')
             # Cleanup temp folder to avoid data being left in /tmp after a failed backup
