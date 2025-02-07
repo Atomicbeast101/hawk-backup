@@ -21,16 +21,19 @@ Status of the backup jobs along with the timestamp of its next run.
   "jobs": [
     {
       "active": true,
+      "status": "not_running",
       "name": "example-modb-server",
       "next_run": "Wed, 08 Jan 2025 00:00:00 GMT"
     },
     {
       "active": true,
+      "status": "not_running",
       "name": "example-mydb-server",
       "next_run": "Wed, 08 Jan 2025 00:00:00 GMT"
     },
     {
       "active": true,
+      "status": "not_running",
       "name": "example-podb-server",
       "next_run": "Wed, 08 Jan 2025 00:00:00 GMT"
     }
