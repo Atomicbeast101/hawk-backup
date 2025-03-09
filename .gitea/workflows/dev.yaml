@@ -6,7 +6,7 @@ on:
 
 jobs:
   local-release:
-    uses: ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/gitea-workflows/.gitea/workflows/local-release.yaml@main
+    uses: adam/gitea-workflows/.gitea/workflows/local-release.yaml@main
     # steps:
     #   - name: Get Meta
     #     id: meta
