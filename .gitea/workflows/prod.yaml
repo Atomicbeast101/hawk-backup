@@ -1,4 +1,4 @@
-name: Release App
+name: Build/Push App for Production
 on:
   push:
     branches:
@@ -6,7 +6,6 @@ on:
 
 jobs:
   local-release:
-    runs-on: ubuntu-latest
     steps:
       - name: Get Meta
         id: meta
@@ -61,6 +60,7 @@ jobs:
     needs:
       - local-release
       - public-release
+    # uses: adam/gitea-workflows/.gitea/workflows/notify.yaml@main
     steps:
       - name: Get Meta
         id: meta
