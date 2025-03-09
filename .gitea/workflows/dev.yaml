@@ -38,11 +38,9 @@ jobs:
 
       - name: Build & Push to Local ACR
         run: |
-          ls -ls
-          pwd
-          docker build -t ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} .
-          docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
-          docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-latest
+          docker build -t ${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} .
+          docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
+          docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-latest
 
   tests:
     runs-on: ubuntu-latest
@@ -78,36 +76,36 @@ jobs:
           docker compose rm -f
           rm -rf tests
 
-  # notify:
-  #   runs-on: ubuntu-latest
-  #   continue-on-error: true
-  #   needs:
-  #     - release
-  #     - tests
-  #   steps:
-  #     - name: Get Meta
-  #       id: meta
-  #       run: |
-  #         echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-  #         echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-  #         echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
+  notify:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      - release
+      - tests
+    steps:
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
-  #     - name: Notify Developer of Success
-  #       if: needs.release.result == 'success' && needs.tests.result == 'success'
-  #       uses: umahmood/pushover-actions@main
-  #       env:
-  #         PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-  #         PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-  #       with:
-  #         title: Gitea DevOps
-  #         message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
+      - name: Notify Developer of Success
+        if: needs.release.result == 'success' && needs.tests.result == 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        with:
+          title: Gitea DevOps
+          message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
-  #     - name: Notify Developer of Failure
-  #       if: needs.release.result != 'success' || needs.tests.result != 'success'
-  #       uses: umahmood/pushover-actions@main
-  #       env:
-  #         PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-  #         PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-  #       with:
-  #         title: Gitea DevOps
-  #         message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+      - name: Notify Developer of Failure
+        if: needs.release.result != 'success' || needs.tests.result != 'success'
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+        with:
+          title: Gitea DevOps
+          message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
