@@ -35,42 +35,43 @@ jobs:
 
       - name: Build & Push to Local ACR
         run: |
-          docker build -t ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
+          docker build -t ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} .
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-latest
 
-  # tests:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repo
-  #       uses: actions/checkout@v4
+  tests:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-  #     - name: Start Services & App
-  #       env:
-  #         HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-  #         HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-  #         HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-  #         HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-  #       run: bash local_run.sh standalone
+      - name: Start Services & App
+        env:
+          HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
+          HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
+          HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
+          HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
+        run: bash local_run.sh standalone
       
-  #     # - name: Perform Tests
-  #     #   id: test_results
-  #     #   run: |
-  #     #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-  #     #     python3 tests/tests.py
+      # - name: Perform Tests
+      #   id: test_results
+      #   run: |
+      #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+      #     python3 tests/tests.py
 
-  #     # - name: Stop if Tests Failed
-  #     #   if: steps.test_results.outputs.results != 'success'
-  #     #   run: |
-  #     #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
-  #     #     exit 1
+      # - name: Stop if Tests Failed
+      #   if: steps.test_results.outputs.results != 'success'
+      #   run: |
+      #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
+      #     exit 1
 
-  #     - name: Cleanup
-  #       if: always()
-  #       run: |
-  #         docker compose stop
-  #         docker compose rm -f
-  #         rm -rf tests
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose stop
+          docker compose rm -f
+          rm -rf tests
 
   # notify:
   #   runs-on: ubuntu-latest
