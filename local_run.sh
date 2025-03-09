@@ -9,9 +9,6 @@ mkdir -p tests/app/backups
 # Copy config to tests/app
 cp --update=none settings.yml tests/app/config/settings.yml
 
-ls -ls
-pwd
-
 # Run containers locally
 if [ "$1" == "standalone" ]; then
     echo "Starting containers [detached]..."

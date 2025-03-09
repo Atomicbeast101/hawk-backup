@@ -3,8 +3,8 @@ services:
     container_name: sftp
     image: atmoz/sftp:latest
     restart: no
-    volumes:
-      - ./tests/sftp:/home/example/upload
+    # volumes:
+    #   - ./tests/sftp:/home/example/upload
     command: example:1234:::upload
     # ports:
     #   - 22:22
@@ -68,11 +68,11 @@ services:
       context: .
     # environment:
     #   HAWKUPS_LOG_LEVEL: INFO
-    volumes:
-      - ./tests/app/config:/config
-      - ./tests/app/log:/log
-      - ./tests/app/tmp:/tmp
-      - ./tests/app/backups:/backups
+    # volumes:
+    #   - ./tests/app/config:/config
+    #   - ./tests/app/log:/log
+    #   - ./tests/app/tmp:/tmp
+    #   - ./tests/app/backups:/backups
     ports:
       - 5000:5000
       # - 9100:9100
