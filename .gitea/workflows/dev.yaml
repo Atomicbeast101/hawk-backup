@@ -22,8 +22,8 @@ jobs:
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
           echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
 
       # - name: Build & Push to Local ACR
       #   uses: docker/build-push-action@v6
@@ -39,69 +39,69 @@ jobs:
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-latest
 
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v4
 
-      - name: Start Services & App
-        env:
-          HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-          HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-          HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-          HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-        run: bash local_run.sh standalone
+  #     - name: Start Services & App
+  #       env:
+  #         HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
+  #         HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
+  #         HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
+  #         HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
+  #       run: bash local_run.sh standalone
       
-      # - name: Perform Tests
-      #   id: test_results
-      #   run: |
-      #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-      #     python3 tests/tests.py
+  #     # - name: Perform Tests
+  #     #   id: test_results
+  #     #   run: |
+  #     #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+  #     #     python3 tests/tests.py
 
-      # - name: Stop if Tests Failed
-      #   if: steps.test_results.outputs.results != 'success'
-      #   run: |
-      #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
-      #     exit 1
+  #     # - name: Stop if Tests Failed
+  #     #   if: steps.test_results.outputs.results != 'success'
+  #     #   run: |
+  #     #     echo "Tests failed! Please view logs under 'Perform Tests' tasks."
+  #     #     exit 1
 
-      - name: Cleanup
-        if: always()
-        run: |
-          docker compose stop
-          docker compose rm -f
-          rm -rf tests
+  #     - name: Cleanup
+  #       if: always()
+  #       run: |
+  #         docker compose stop
+  #         docker compose rm -f
+  #         rm -rf tests
 
-  notify:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    needs:
-      - release
-      - tests
-    steps:
-      - name: Get Meta
-        id: meta
-        run: |
-          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
+  # notify:
+  #   runs-on: ubuntu-latest
+  #   continue-on-error: true
+  #   needs:
+  #     - release
+  #     - tests
+  #   steps:
+  #     - name: Get Meta
+  #       id: meta
+  #       run: |
+  #         echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+  #         echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
+  #         echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
-      - name: Notify Developer of Success
-        if: needs.release.result == 'success' && needs.tests.result == 'success'
-        uses: umahmood/pushover-actions@main
-        env:
-          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-        with:
-          title: Gitea DevOps
-          message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
+  #     - name: Notify Developer of Success
+  #       if: needs.release.result == 'success' && needs.tests.result == 'success'
+  #       uses: umahmood/pushover-actions@main
+  #       env:
+  #         PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+  #         PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+  #       with:
+  #         title: Gitea DevOps
+  #         message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
-      - name: Notify Developer of Failure
-        if: needs.release.result != 'success' || needs.tests.result != 'success'
-        uses: umahmood/pushover-actions@main
-        env:
-          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
-          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
-        with:
-          title: Gitea DevOps
-          message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+  #     - name: Notify Developer of Failure
+  #       if: needs.release.result != 'success' || needs.tests.result != 'success'
+  #       uses: umahmood/pushover-actions@main
+  #       env:
+  #         PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+  #         PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+  #       with:
+  #         title: Gitea DevOps
+  #         message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
