@@ -87,4 +87,3 @@ jobs:
         with:
           title: Gitea DevOps
           message: ❌ Unable to build & push ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
-
