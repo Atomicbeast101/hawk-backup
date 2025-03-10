@@ -5,7 +5,7 @@ on:
       - 'dev/v[0-9]+.[0-9]+'
 
 jobs:
-  local-release:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Get Meta
@@ -35,7 +35,7 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
-    needs: local-release
+    needs: release
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     needs:
-      - local-release
+      - release
       - tests
     # uses: adam/gitea-workflows/.gitea/workflows/notify.yaml@main
     steps:

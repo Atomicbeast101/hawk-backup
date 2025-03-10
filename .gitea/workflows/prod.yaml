@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  local-release:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Get Meta
@@ -32,18 +32,6 @@ jobs:
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}
           docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:latest
 
-  public-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Meta
-        id: meta
-        run: |
-          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
-
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
       - name: Login to Public ACR
         uses: docker/login-action@v2
         with:
@@ -58,9 +46,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     continue-on-error: true
-    needs:
-      - local-release
-      - public-release
+    needs: release
     # uses: adam/gitea-workflows/.gitea/workflows/notify.yaml@main
     steps:
       - name: Get Meta
@@ -70,7 +56,7 @@ jobs:
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
 
       - name: Notify Developer of Success
-        if: job.status == 'success'
+        if: needs.release.result == 'success'
         uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
@@ -80,7 +66,7 @@ jobs:
           message: ✅ Built & Pushed ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }} app!
 
       - name: Notify Developer of Failure
-        if: job.status != 'success'
+        if: needs.release.result != 'success'
         uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
