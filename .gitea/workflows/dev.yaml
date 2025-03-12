@@ -27,7 +27,7 @@ jobs:
 
       - name: Build & Push to Local ACR
         run: |
-          docker builx build \
+          docker buildx build \
             --platform linux/amd64,linux/arm64
             --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} \
             --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest \
