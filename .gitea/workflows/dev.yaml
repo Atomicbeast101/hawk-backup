@@ -27,7 +27,8 @@ jobs:
 
       - name: Build & Push to Local ACR
         run: |
-          sudo apt install docker-buildx-plugin
+          ls -ls /etc/docker
+          cat /etc/docker/daemon.json
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} \
