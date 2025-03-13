@@ -44,6 +44,7 @@ jobs:
         #   docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
         #   docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
 
+
   tests:
     runs-on: ubuntu-latest
     needs: release
