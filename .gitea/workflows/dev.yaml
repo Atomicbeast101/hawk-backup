@@ -34,7 +34,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt install qemu-user-static
+          sudo apt update; sudo apt install qemu-user-static
 
       - name: Build & Push to Local ACR
         uses: docker/build-push-action@v6
