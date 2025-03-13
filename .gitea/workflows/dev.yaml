@@ -32,9 +32,6 @@ jobs:
           username: ${{ vars.LOCAL_ACR_USERNAME }}
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
 
-      - name: Install QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Build & Push to Local ACR
         uses: docker/setup-buildx-action@v3
         with:
