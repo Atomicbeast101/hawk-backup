@@ -32,6 +32,10 @@ jobs:
           username: ${{ vars.LOCAL_ACR_USERNAME }}
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
 
+      - name: Install Dependencies
+        run: |
+          sudo apt install qemu-user-static
+
       - name: Build & Push to Local ACR
         uses: docker/build-push-action@v6
         with:
