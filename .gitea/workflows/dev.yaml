@@ -9,6 +9,7 @@ env:
 
 jobs:
   release:
+    name: Release (linux/${{ matrix.architecture }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -52,6 +53,7 @@ jobs:
 
 
   tests:
+    name: Tests
     runs-on: ubuntu-latest
     needs: release
     steps:
@@ -88,6 +90,7 @@ jobs:
           rm -rf tests
 
   notify:
+    name: Notify Developer
     runs-on: ubuntu-latest
     continue-on-error: true
     needs:
