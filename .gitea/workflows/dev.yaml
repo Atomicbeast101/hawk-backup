@@ -36,6 +36,8 @@ jobs:
       - name: Setup Docker Buildx
         run: |
           docker buildx create gitea_builder --network host
+        env:
+          DOCKER_HOST: unix:///run/docker.sock
 
       - name: Login to Local ACR
         uses: docker/login-action@v3
