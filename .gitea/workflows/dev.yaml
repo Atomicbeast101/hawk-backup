@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        architecture: [amd64]
+        architecture: [amd64, arm64]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
