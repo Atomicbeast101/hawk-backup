@@ -17,7 +17,7 @@ jobs:
     name: Release (linux/${{ matrix.architecture }})
     runs-on: ubuntu-latest
     container:
-      image: gitea/runner-images:ubuntu-22.04
+      image: gitea/runner-images:ubuntu-latest
     strategy:
       matrix:
         architecture: [amd64, arm64]
