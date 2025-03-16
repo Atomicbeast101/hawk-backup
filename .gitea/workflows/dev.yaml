@@ -35,7 +35,7 @@ jobs:
 
       - name: Setup Docker Buildx
         run: |
-          docker buildx create gitea_builder --network host
+          docker buildx create gitea_builder
         env:
           DOCKER_HOST: unix:///run/docker.sock
 
