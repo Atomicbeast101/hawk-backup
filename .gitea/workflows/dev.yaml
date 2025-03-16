@@ -36,11 +36,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           endpoint: builders
-        env:
-          DOCKER_HOST: "tcp://docker:2376/"
-          DOCKER_TLS_CERTDIR: "/certs"
-          DOCKER_TLS_VERIFY: 1
-          DOCKER_CERT_PATH: "/certs/client"
 
       # - name: Set up QEMU
       #   uses: docker/setup-qemu-action@v3
@@ -64,11 +59,6 @@ jobs:
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-        env:
-          DOCKER_HOST: "tcp://docker:2376/"
-          DOCKER_TLS_CERTDIR: "/certs"
-          DOCKER_TLS_VERIFY: 1
-          DOCKER_CERT_PATH: "/certs/client"
 
       # - name: Build & Push to Local ACR
       #   run: |
