@@ -8,9 +8,12 @@ env:
   IMAGE_BASE: ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}
 
 jobs:
+  # https://gist.github.com/mariusrugan/911f5da923c93f3c795d3e84bed9e256
   release:
     name: Release (linux/${{ matrix.architecture }})
     runs-on: ubuntu-latest
+    container:
+      image: gitea/runner-images:ubuntu-22.04
     strategy:
       matrix:
         architecture: [amd64, arm64]
