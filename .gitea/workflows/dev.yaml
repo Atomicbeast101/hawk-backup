@@ -5,6 +5,10 @@ on:
       - 'dev/v[0-9]+.[0-9]+'
 
 env:
+  DOCKER_HOST: "tcp://docker:2376/"
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "/certs/client"
   IMAGE_BASE: ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}
 
 jobs:
@@ -35,10 +39,6 @@ jobs:
 
       - name: Setup Docker Context for Buildx
         run: |
-          export DOCKER_HOST=tcp://docker:2376/
-          export DOCKER_TLS_CERTDIR="/certs"
-          export DOCKER_TLS_VERIFY=1
-          export DOCKER_CERT_PATH="/certs/client"
           docker context create builders
 
       - name: Set up Docker Buildx
