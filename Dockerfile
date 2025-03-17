@@ -1,4 +1,5 @@
-FROM python:3.10-slim
+# FROM python:3.10-slim
+FROM ubuntu:24.04
 
 # Setup
 RUN mkdir /app
