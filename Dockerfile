@@ -18,9 +18,9 @@ RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
 ## MariaDB/MySQL Client Installation
 # N/A
 ## MongoDB Client Installation
-RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_$ARCHITECTURE.deb -O /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb \
-    && sudo apt-get install /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb -y \
-    && rm -rf /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb
+RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb -O /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb \
+    && sudo apt-get install /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb -y \
+    && rm -rf /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb
 
 # Transfer Files Over
 COPY bin /app/bin
