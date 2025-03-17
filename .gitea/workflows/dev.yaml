@@ -10,6 +10,7 @@ env:
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "/certs/client"
   IMAGE_BASE: ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}
+  UBUNTU_VERSION: 24.04
 
 jobs:
   # https://forum.gitea.com/t/act-runner-in-k8s-fail-to-connect-to-docker-daemon/8736/16
@@ -59,6 +60,9 @@ jobs:
         with:
           platforms: linux/${{ matrix.architecture }}
           push: true
+          build-args: |
+            UBUNTU_VERSION=${{ env.UBUNTU_VERSION }}
+            ARCHITECTURE=${{ matrix.architecture }}
           tags: |
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest

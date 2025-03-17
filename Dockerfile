@@ -1,5 +1,7 @@
-# FROM python:3.10-slim
-FROM ubuntu:24.04
+ARG UBUNTU_VERSION=latest
+ARG ARCHITECTURE=amd64
+
+FROM ubuntu:$UBUNTU_VERSION
 
 # Setup
 RUN mkdir /app
@@ -11,13 +13,14 @@ RUN apt-get update && apt-get install $(cat /apt_packages.txt) -y
 COPY pip_packages.txt /
 RUN pip install --no-cache-dir --break-system-packages -r /pip_packages.txt
 ## PostgreSQL Client Installation
-RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && apt-get install postgresql-client -y
+RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
+    && apt-get install postgresql-client -y
 ## MariaDB/MySQL Client Installation
 # N/A
 ## MongoDB Client Installation
-RUN curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
-RUN echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
-RUN apt-get update && apt-get install mongodb-org-tools -y
+RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_$ARCHITECTURE.deb -O /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb \
+    && sudo apt-get install /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb -y \
+    && rm -rf /mongodb-mongosh_2.4.2_$ARCHITECTURE.deb
 
 # Transfer Files Over
 COPY bin /app/bin
