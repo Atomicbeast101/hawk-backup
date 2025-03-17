@@ -15,12 +15,13 @@ jobs:
   # https://forum.gitea.com/t/act-runner-in-k8s-fail-to-connect-to-docker-daemon/8736/16
   release:
     name: Release (linux/${{ matrix.architecture }})
-    runs-on: ubuntu-latest
+    runs-on: buildx-ubuntu-latest
     container:
       image: gitea/runner-images:ubuntu-latest
     strategy:
       matrix:
-        architecture: [amd64, arm64]
+        architecture: [amd64]
+        # architecture: [amd64, arm64]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -61,18 +62,6 @@ jobs:
           tags: |
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
-            ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-
-      # - name: Build & Push to Local ACR
-      #   run: |
-      #     docker buildx build \
-      #       --platform linux/${{ matrix.architecture }} \
-      #       --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} \
-      #       --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest \
-      #       --tag ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest .
-      #     docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
-      #     docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
-      #     docker push ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
 
   tests:
     name: Tests
@@ -117,8 +106,8 @@ jobs:
   #   needs: release
   #   steps:
 
-  notify:
-    name: Notify Developer
+  report:
+    name: Report
     runs-on: ubuntu-latest
     continue-on-error: true
     needs:
@@ -133,7 +122,7 @@ jobs:
           echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
           echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
-      - name: Notify Developer of Success
+      - name: Report of Success
         if: needs.release.result == 'success' && needs.tests.result == 'success'
         uses: umahmood/pushover-actions@main
         env:
@@ -143,7 +132,7 @@ jobs:
           title: Gitea DevOps
           message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
-      - name: Notify Developer of Failure
+      - name: Report of Failure
         if: needs.release.result != 'success' || needs.tests.result != 'success'
         uses: umahmood/pushover-actions@main
         env:
