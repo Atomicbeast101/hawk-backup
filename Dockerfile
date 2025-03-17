@@ -1,7 +1,7 @@
-ARG UBUNTU_VERSION=latest
-ARG ARCHITECTURE=amd64
+ARG OS_VERSION=latest
+ARG ARCH=amd64
 
-FROM ubuntu:$UBUNTU_VERSION
+FROM ubuntu:${OS_VERSION}
 
 # Setup
 RUN mkdir /app
@@ -18,9 +18,9 @@ RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
 ## MariaDB/MySQL Client Installation
 # N/A
 ## MongoDB Client Installation
-RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb -O /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb \
-    && sudo apt-get install /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb -y \
-    && rm -rf /mongodb-mongosh_2.4.2_${ARCHITECTURE}.deb
+RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_${ARCH}.deb -O /mongodb-mongosh_2.4.2_${ARCH}.deb \
+    && sudo apt-get install /mongodb-mongosh_2.4.2_${ARCH}.deb -y \
+    && rm -rf /mongodb-mongosh_2.4.2_${ARCH}.deb
 
 # Transfer Files Over
 COPY bin /app/bin

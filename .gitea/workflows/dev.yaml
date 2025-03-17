@@ -61,8 +61,8 @@ jobs:
           platforms: linux/${{ matrix.architecture }}
           push: true
           build-args: |
-            UBUNTU_VERSION=${{ env.UBUNTU_VERSION }}
-            ARCHITECTURE=${{ matrix.architecture }}
+            OS_VERSION=${{ env.UBUNTU_VERSION }}
+            ARCH=${{ matrix.architecture }}
           tags: |
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
