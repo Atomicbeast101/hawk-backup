@@ -9,7 +9,7 @@ RUN mkdir /backups
 COPY apt_packages.txt /
 RUN apt-get update && apt-get install $(cat /apt_packages.txt) -y
 COPY pip_packages.txt /
-RUN pip install --no-cache-dir -r /pip_packages.txt
+RUN pip install --no-cache-dir --break-system-packages -r /pip_packages.txt
 ## PostgreSQL Client Installation
 RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && apt-get install postgresql-client -y
 ## MariaDB/MySQL Client Installation

@@ -1,7 +1,7 @@
 postgresql-common
 mariadb-client
-python3-full
 python3-pip
 borgbackup
+python3
 gnupg
 curl
