@@ -19,7 +19,7 @@ RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
 # N/A
 ## MongoDB Client Installation
 RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_${ARCH}.deb -O /mongodb-mongosh_2.4.2_${ARCH}.deb \
-    && sudo apt-get install /mongodb-mongosh_2.4.2_${ARCH}.deb -y \
+    && apt-get install /mongodb-mongosh_2.4.2_${ARCH}.deb -y \
     && rm -rf /mongodb-mongosh_2.4.2_${ARCH}.deb
 
 # Transfer Files Over
