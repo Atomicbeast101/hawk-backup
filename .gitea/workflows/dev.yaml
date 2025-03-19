@@ -16,13 +16,12 @@ jobs:
   # https://forum.gitea.com/t/act-runner-in-k8s-fail-to-connect-to-docker-daemon/8736/16
   release:
     name: Release (linux/${{ matrix.architecture }})
-    runs-on: buildx-ubuntu-latest
+    runs-on: "buildx-${{ matrix.architecture }}-ubuntu-latest"
     container:
       image: gitea/runner-images:ubuntu-latest
     strategy:
       matrix:
-        architecture: [amd64, arm64]
-        # architecture: [amd64]
+        architecture: [amd64, aarch64]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
