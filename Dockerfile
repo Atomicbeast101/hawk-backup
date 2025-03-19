@@ -1,7 +1,7 @@
 ARG OS_VERSION=latest
-ARG ARCH=amd64
-
 FROM ubuntu:${OS_VERSION}
+
+ARG ARCH=amd64
 
 # Setup
 RUN mkdir /app
