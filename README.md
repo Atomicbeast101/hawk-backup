@@ -4,9 +4,13 @@ Single platform that performs automated database and file-based backups from var
 
 ## Features
 
-* Performs backup from a single docker container, can run in a backup server (Synology, for example).
+* Performs backup from a single docker container, can run on any device that supports Docker (if its amd64 or arm64 architecture, aarch64 is not supported due to MongoDB not supporting it)
 * Send out notifications on successful and/or failed backups via [Notifiers](https://github.com/liiight/notifiers).
 * Supports tracking history of backups and performing data retention activities
+
+## Limitations
+
+* Cannot run on Synology NAS that has aarch64 architecture CPUs.
 
 ## Links
 
