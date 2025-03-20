@@ -68,11 +68,20 @@ jobs:
 
   tests:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: buildx-ubuntu-latest
+    container:
+      image: gitea/runner-images:ubuntu-latest
     needs: release
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+
+      - name: Login to Local ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.LOCAL_ACR_URL }}
+          username: ${{ vars.LOCAL_ACR_USERNAME }}
+          password: ${{ secrets.LOCAL_ACR_PASSWORD }}
 
       #### Investigate why mounting docker-compose apps to gitea runner's /workspace causes permission errors ####
       - name: Start Services & App
