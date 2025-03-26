@@ -1,7 +1,6 @@
 system:
   prometheus:
     enabled: bool()
-    port: int(min=1, max=65535)
 alerts: list(include('alert'))
 destinations: list(include('destination'))
 jobs: list(include('job'))

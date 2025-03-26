@@ -146,13 +146,9 @@ def main():
 
     # Prometheus
     if config['system']['prometheus']['enabled']:
-        metrics = bin.metrics.Metrics(log, config['system']['prometheus']['port'], scheduler)
-        metrics.start()
+        metrics = bin.metrics.Metrics(log, scheduler)
+        app.add_url_rule('/metrics', view_func=metrics.metrics, methods=['GET'])
 
     log.info(f'Hawk Backup {bin.config.VERSION} ready to serve!')
-
-    # For local testing
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=8080)
 
 main()

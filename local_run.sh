@@ -15,5 +15,5 @@ if [ "$1" == "standalone" ]; then
     docker compose up -d --build
 else
     echo "Starting containers [attached]..."
-    docker compose up --build
+    docker compose up --build --remove-orphans
 fi

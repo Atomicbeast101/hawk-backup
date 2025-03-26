@@ -83,7 +83,6 @@ jobs:
           username: ${{ vars.LOCAL_ACR_USERNAME }}
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
 
-      #### Investigate why mounting docker-compose apps to gitea runner's /workspace causes permission errors ####
       - name: Start Services & App
         env:
           HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
@@ -91,7 +90,6 @@ jobs:
           HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
           HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
         run: bash local_run.sh standalone
-      #### Investigate why mounting docker-compose apps to gitea runner's /workspace causes permission errors ####
       
       # - name: Perform Tests
       #   id: test_results
