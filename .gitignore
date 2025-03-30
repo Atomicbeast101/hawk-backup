@@ -2,4 +2,4 @@ tests/sftp
 tests/database
 tests/app
 tests/synology
-docker-compose.yml
+local_run.sh
