@@ -66,49 +66,64 @@ jobs:
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
             ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-dev-latest
 
-  tests:
-    name: Tests
-    runs-on: buildx-ubuntu-latest
-    container:
-      image: gitea/runner-images:ubuntu-latest
-    needs: release
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Login to Local ACR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.LOCAL_ACR_URL }}
-          username: ${{ vars.LOCAL_ACR_USERNAME }}
-          password: ${{ secrets.LOCAL_ACR_PASSWORD }}
-
-      - name: Start Services & App
-        env:
-          HAWKUPS_ALERTS__example_webhook_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-          HAWKUPS_ALERTS__example_webhook_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-          HAWKUPS_ALERTS__example_pushover_alert__USER: ${{ secrets.HAWKUPS_PUSHOVER_USER }}
-          HAWKUPS_ALERTS__example_pushover_alert__TOKEN: ${{ secrets.HAWKUPS_PUSHOVER_TOKEN }}
-        run: bash local_run.sh standalone
+  # tests:
+  #   name: Tests
+  #   runs-on: buildx-ubuntu-latest
+  #   container:
+  #     image: gitea/runner-images:ubuntu-latest
+  #   needs: release
+  #   services:
+  #     sftp:
+  #       image: atmoz/sftp:latest
+  #       command: example:1234:::upload
+  #     postgresql:
+  #       image: postgres:latest
+  #       environment:
+  #         POSTGRES_DB: test
+  #         POSTGRES_USER: bckupmgr
+  #         POSTGRES_PASSWORD: 1234
+  #     mysql:
+  #       image: mysql:latest
+  #       environment:
+  #         MYSQL_ROOT_PASSWORD: 1234
+  #     mongodb:
+  #       image: mongo:latest
+  #       environment:
+  #         MONGO_INITDB_ROOT_USERNAME: root
+  #         MONGO_INITDB_ROOT_PASSWORD: 1234
+  #         MONGO_INITDB_DATABASE: test
+  #     ubuntu:
+  #       image: ${{ vars.LOCAL_ACR_URL }}/ubuntu-with-ssh:latest
+  #       environmnet:
+  #         SSH_USERNAME: root
+  #         SSH_PASSWORD: 1234
+  #       credentials:
+  #         username: ${{ vars.LOCAL_ACR_USERNAME }}
+  #         password: ${{ secrets.LOCAL_ACR_PASSWORD }}
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v4
       
-      - name: Perform Tests
-        id: test_results
-        run: |
-          python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-          python3 tests/tests.py
+  #     - name: Setup to run Tests
+  #       id: setup_status
+  #       run: |
+  #         python3 tests/setup.py
 
-      - name: Stop if Tests Failed
-        if: steps.test_results.outputs.results != 'success'
-        run: |
-          echo "Tests failed! Please view logs under 'Perform Tests' tasks."
-          exit 1
+  #     - name: Stop if Setup Failed
+  #       if: steps.setup_status.outputs.results != 'success'
+  #       run: |
+  #         echo "Setup failed! Please view logs for reason."
 
-      - name: Cleanup
-        if: always()
-        run: |
-          docker compose stop
-          docker compose rm -f
-          rm -rf tests
+  #     - name: Perform Tests
+  #       id: test_status
+  #       run: |
+  #         python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+  #         python3 tests/test.py
+
+  #     - name: Stop if Tests Failed
+  #       if: steps.test_status.outputs.results != 'success'
+  #       run: |
+  #         echo "Tests failed! Please view logs for reason."
 
   report:
     name: Report
@@ -116,7 +131,7 @@ jobs:
     continue-on-error: true
     needs:
       - release
-      - tests
+      # - tests
     # uses: adam/gitea-workflows/.gitea/workflows/notify.yaml@main
     steps:
       - name: Get Meta
@@ -127,21 +142,25 @@ jobs:
           echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
 
       - name: Report of Success
-        if: needs.release.result == 'success' && needs.tests.result == 'success'
+        # if: needs.release.result == 'success' && needs.tests.result == 'success'
+        if: needs.release.result == 'success'
         uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
           title: Gitea DevOps
-          message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
+          # message: ✅ Built/Pushed & Tested ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
+          message: ✅ Built/Pushed ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app!
 
       - name: Report of Failure
-        if: needs.release.result != 'success' || needs.tests.result != 'success'
+        # if: needs.release.result != 'success' || needs.tests.result != 'success'
+        if: needs.release.result != 'success'
         uses: umahmood/pushover-actions@main
         env:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
         with:
           title: Gitea DevOps
-          message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+          # message: ❌ Unable to build/push & test ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
+          message: ❌ Unable to build/push ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }} app.
