@@ -1,12 +1,19 @@
 # HawkBackup
 
-Single platform that performs automated database and file-based backups from various servers and pushes them to an internal/external destination such as SFTP endpoint. This was built to make the whole backup setup as convenient as possible without having to add additional services on every server hosting database or files. All configuration is done via a simple YAML config file and no dependencies are needed on clients to perform these backups.
+Single platform that performs automated database and file-based backups from various servers and pushes them to an internal/external destination such as SFTP endpoint. This was built to make the whole backup setup as convenient as possible without having to add additional services on every server hosting database or files. All activities from monitoring to starting jobs to configuration are done via API calls. There would be no dependencies needed on targets (database servers, for example) in order to perform these backups.
 
 ## Features
 
-* Performs backup from a single docker container, can run on any device that supports Docker (if its amd64 or arm64 architecture, aarch64 is not supported due to MongoDB not supporting it)
+* Performs backup from a docker-compose setup, can run on any device that supports Docker (amd64 architecture currently supported. aarch64 is not supported due to no architect options for MongoDB CLI packages).
 * Send out notifications on successful and/or failed backups via [Notifiers](https://github.com/liiight/notifiers).
 * Supports tracking history of backups and performing data retention activities
+
+## Dependencies
+
+Please see docker-compose.yml file example of how it runs, however it only needs three things:
+* Redis cache server for tracking background jobs
+* Database to store configuration and backup metrics in
+* Temporary storage for storing backup activities (as well as long-term storage if using `local` destination type)
 
 ## Limitations
 
@@ -16,7 +23,7 @@ Single platform that performs automated database and file-based backups from var
 
 * [Setup](SETUP.md)
 * [Configuration](CONFIGURATION.md)
-* [API Documentation](API_DOC.md)
+* [Swagger API Doc]() <-- to add later
 
 ## Services Supported for Backups
 

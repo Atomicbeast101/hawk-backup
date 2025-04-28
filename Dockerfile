@@ -18,15 +18,18 @@ RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
 ## MariaDB/MySQL Client Installation
 # N/A
 ## MongoDB Client Installation
-RUN wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.4.2_${ARCH}.deb -O /mongodb-mongosh_2.4.2_${ARCH}.deb \
-    && apt-get install /mongodb-mongosh_2.4.2_${ARCH}.deb -y \
-    && rm -rf /mongodb-mongosh_2.4.2_${ARCH}.deb
+# N/A - using Python pymongo package
 
 # Transfer Files Over
 COPY bin /app/bin
+COPY gunicorn.conf.py /app
 COPY app.py /app
+
+# Run as Different User
+RUN useradd -m -s /bin/bash hawkapp
+USER hawkapp
 
 # Start App
 WORKDIR /app
 EXPOSE 5000
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "app"]

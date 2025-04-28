@@ -1,142 +1,194 @@
 # Imports
-import smbprotocol
-import notifiers
-import yamale
-import pysftp
-import yaml
+import logging
+import secrets
 import os
 
-# Attributes
-# Config Options
-VERSION = os.environ['VERSION'] if os.environ.get('VERSION') else 'v0-alpha'
-CONFIG_PATH = '/config/settings.yml'
-CONFIG_SCHEMA_PATH = 'bin/schema.yml'
-JOB_TYPES = [ 'postgresql', 'mysql', 'mongodb', 'files', 'ansible' ]
-## Logging
-LOG_TYPES = ['both', 'file', 'syslog']
-LOG_TYPE = os.environ['HAWKUPS_LOG_TYPE'] if os.environ.get('HAWKUPS_LOG_TYPE') else 'file'
-LOG_LEVEL = os.environ['HAWKUPS_LOG_LEVEL'] if os.environ.get('HAWKUPS_LOG_LEVEL') else 'DEBUG'
-LOG_SERVER = os.environ['HAWKUPS_LOG_SERVER'] if os.environ.get('HAWKUPS_LOG_SERVER') else None
-## Destinations
-LOCAL_PATH = '/backups'
-## PostgreSQL
-POSTGRESQL_SQL_GET_LIST_OF_DATABASES = "SELECT datname FROM pg_database WHERE datname <> ALL ('{{{databases}}}') ORDER BY datname;"
-POSTGRESQL_DEFAULT_EXCLUDES = [
-    'template0',
-    'template1',
-    'postgres'
-]
-## MariaDB/MySQL
-MYSQL_SQL_GET_LIST_OF_DATABASES = "SHOW DATABASES WHERE `Database` NOT IN ({databases});"
-MYSQL_DEFAULT_EXCLUDES = [
-    'information_schema',
-    'mysql',
-    'performance_schema',
-    'sys'
-]
-
-# Class
+# Classes
 class Config:
-    def __init__(self, log, global_func):
-        self._log = log
-        self._global_func = global_func
+    ## General
+    NAME = 'hawk-backup'
+    VERSION = os.environ.get('VERSION', 'v0.0')
+    
+    ## Config Schemas
+    ALERT_CONFIG_SCHEMA = {
+        'type': 'object',
+        'properties': {
+            'success': { 'type': 'boolean', 'default': False },
+            'failure': { 'type': 'boolean', 'default': True },
+            'webhook': {
+                'type': 'object',
+                'properties': {
+                    'url': { 'type': 'string', 'format': 'uri' },
+                    'data': { 
+                        'type': 'object'
+                    }
+                },
+                'required': ['url']
+            },
+            'notifiers': {
+                'type': 'object',
+                'properties': {
+                    'type': { 'type': 'string', 'minLength': 1 },
+                    'data': { 'type': 'object' }
+                },
+                'required': ['type']
+            }
+        },
+        'oneOf': [
+            { 'required': ['webhook'] },
+            { 'required': ['notifiers'] }
+        ]
+    }
+    DESTINATION_CONFIG_SCHEMA = {
+        'type': 'object',
+        'properties': {
+            'local': { 'type': 'object' },
+            'sftp': {
+                'type': 'object',
+                'properties': {
+                    'server': { 
+                        'type': 'string', 
+                        'oneOf': ['hostname', 'ipv4', 'ipv6'] 
+                    },
+                    'port': { 'type': 'integer', 'minimum': 1, 'maximum': 65535, 'default': 22 },
+                    'username': { 'type': 'string', 'minLength': 1 },
+                    'password': { 'type': 'string' },
+                    'path': { 'type': 'string', 'pattern': '^(/[^/]+)+/?$' }
+                },
+                'required': ['server', 'path']
+            }
+        },
+        'oneOf': [
+            { 'required': ['local'] },
+            { 'required': ['sftp'] }
+        ]
+    }
+    JOB_CONFIG_SCHEMA = {
+        'type': 'object',
+        'properties': {
+            'postgresql': {
+                'type': 'object',
+                'properties': {
+                    'server': { 
+                        'type': 'string', 
+                        'oneOf': ['hostname', 'ipv4', 'ipv6'] 
+                    },
+                    'port': { 'type': 'integer', 'minimum': 1, 'maximum': 65535, 'default': 5432 },
+                    'username': { 'type': 'string', 'minLength': 1 },
+                    'password': { 'type': 'string' },
+                    'ssl': { 
+                        'type': 'string', 
+                        'enum': ['disable', 'allow', 'prefer', 'require']
+                    },
+                    'excludes': { 
+                        'type': 'array',
+                        'items': { 'type': 'string' }
+                    }
+                },
+                'required': ['server']
+            },
+            'mysql': {
+                'type': 'object',
+                'properties': {
+                    'server': { 
+                        'type': 'string', 
+                        'oneOf': ['hostname', 'ipv4', 'ipv6'] 
+                    },
+                    'port': { 'type': 'integer', 'minimum': 1, 'maximum': 65535, 'default': 3306 },
+                    'username': { 'type': 'string', 'minLength': 1 },
+                    'password': { 'type': 'string' },
+                    'excludes': { 
+                        'type': 'array',
+                        'items': { 'type': 'string' }
+                    }
+                },
+                'required': ['server']
+            },
+            'mongodb': {
+                'type': 'object',
+                'properties': {
+                    'server': { 
+                        'type': 'string', 
+                        'oneOf': ['hostname', 'ipv4', 'ipv6'] 
+                    },
+                    'port': { 'type': 'integer', 'minimum': 1, 'maximum': 65535, 'default': 27017 },
+                    'username': { 'type': 'string', 'minLength': 1 },
+                    'password': { 'type': 'string' },
+                    # 'excludes': { 
+                    #     'type': 'array',
+                    #     'items': { 'type': 'string' }
+                    # }
+                },
+                'required': ['server']
+            },
+            'files': {
+                'type': 'object',
+                'properties': {
+                    'server': { 
+                        'type': 'string', 
+                        'oneOf': ['hostname', 'ipv4', 'ipv6'] 
+                    },
+                    'port': { 'type': 'integer', 'minimum': 1, 'maximum': 65535, 'default': 5432 },
+                    'username': { 'type': 'string', 'minLength': 1 },
+                    'password': { 'type': 'string' },
+                    'paths': { 
+                        'type': 'array',
+                        'items': { 'type': 'string' }
+                    }
+                },
+                'required': ['server', 'paths']
+            }
+        },
+        'oneOf': [
+            { 'required': ['postgresql'] },
+            { 'required': ['mysql'] },
+            { 'required': ['mongodb'] },
+            { 'required': ['files'] }
+        ]
+    }
 
-    def validate(self, path):
-        try:
-            config = None
+    ## Redis
+    REDIS_SERVER = os.environ.get('REDIS_SERVER', 'localhost:6379')
 
-            # Check if file exists
-            if not os.path.isfile(path):
-                raise Exception(f'Configuration file {path} does not exist or exists as a file!')
-            self._log.debug('Successfully validated that configuration file exists!')
+    ## Logging
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    if LOG_LEVEL not in logging.getLevelNamesMapping(): raise ValueError('Invalid LOG_LEVEL environment variable value! Allowed: {}'.format(','.join(logging.getLevelNamesMapping())))
+    LOG_TYPES = os.environ.get('LOG_TYPES', 'console').lower().split(',')
+    for log_type in LOG_TYPES:
+        if log_type not in ['console', 'file', 'syslog']: raise ValueError('Invalid LOG_TYPES environment variable value! Allowed (can be multiple, separated by comma): {}'.format(','.join(['console', 'file', 'syslog'])))
+    LOG_FILE_PATH = '/logs'
+    if 'syslog' in LOG_TYPES:
+        LOG_SYSLOG_HOST = os.environ.get('LOG_SYSLOG_HOST', 'localhost:514')
 
-            # Load YAML schema & contents
-            try:
-                raw_config = yamale.make_data(CONFIG_PATH)
-                self._log.debug('Successfully loaded config data to YAML!')
-            except Exception as ex:
-                raise Exception(f'Unable to load configuration file as YAML! Reason: {str(ex)}')
+    ## Database
+    DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:////data/hawk-backup.db')
+    if len(DATABASE_URL) == 0: raise ValueError('Invalid DATABASE_URL environment variable value! Please ensure it follows SQLalchemy database URL format!')
+    ### PostgreSQL
+    POSTGRESQL_SQL_GET_LIST_OF_DATABASES = "SELECT datname FROM pg_database WHERE datname <> ALL ('{{{excludes}}}') ORDER BY datname;"
+    POSTGRESQL_DEFAULT_EXCLUDES = [
+        'template0',
+        'template1',
+        'postgres'
+    ]
+    ### MySQL/MariaDB
+    MYSQL_SQL_GET_LIST_OF_DATABASES = "SHOW DATABASES WHERE `Database` NOT IN ({excludes});"
+    MYSQL_DEFAULT_EXCLUDES = [
+        'information_schema',
+        'mysql',
+        'performance_schema',
+        'sys'
+    ]
 
-            # Validate JSON schema
-            schema = yamale.make_schema(CONFIG_SCHEMA_PATH)
-            try:
-                yamale.validate(schema, raw_config)
-                with open(CONFIG_PATH, 'r') as f:
-                    config = yaml.safe_load(f)
-                self._log.debug('YAML configuration has been validated against schema!')
-            except Exception as ex:
-                raise Exception(f'Configuration file does not meet schema layout! Please check the configuration file and refer to documentation for details. Reason: {str(ex)}')
+    ## Web Stuff
+    APP_SECRET_KEY = os.environ.get('APP_SECRET_KEY', secrets.token_urlsafe(32))
+    if len(APP_SECRET_KEY) == 0: raise ValueError('Invalid APP_SECRET_KEY environment variable value! Please populate it with something!')
+    API_TOKEN = os.environ.get('API_TOKEN')
+    PROMETHEUS = os.environ.get('PROMETHEUS', 'false').lower()
+    if PROMETHEUS not in ['true', 'false']: raise ValueError('Invalid PROMETHEUS environment variable! Allowed: true,false')
+    PROMETHEUS = True if PROMETHEUS == 'true' else False
+    API_DOCS = os.environ.get('API_DOCS', 'false').lower()
+    if API_DOCS not in ['true', 'false']: raise ValueError('Invalid API_DOCS environment variable! Allowed: true,false')
+    API_DOCS = True if API_DOCS == 'true' else False
 
-            # Validate destination and alert names exist for each job
-            for job in config['jobs']:
-                name = job['name']
-                ## Confirm destination exists under destinations
-                destination = job['destination']
-                if destination not in [dest['name'] for dest in config['destinations']]:
-                    raise Exception(f'Destination {destination} does not exist under "destinations" in configuration file! Please use an existing one or add one.')
-                ## Confirm alert exists under alerts
-                if 'alert' in job:
-                    alert = job['alert']
-                    if alert not in [alert['name'] for alert in config['alerts']]:
-                        raise Exception(f'Alert {alert} does not exist under "alerts" in configuration file! Please use an existing one or add one.')
-
-            # Check alert config (notifiers)
-            for alert in config['alerts']:
-                if 'notifiers' in alert:
-                    name = alert['name']
-                    typee = alert['notifiers']['type'].lower()
-                    if typee in notifiers.all_providers():
-                        notify = notifiers.get_notifier(typee)
-                        # Required keys exists
-                        data = alert['notifiers']['data']
-                        data = self._global_func.get_alert_secrets(data, name)
-                        data['message'] = '' # automatically gets added when notification is sent, left blank for config validation reasons
-                        if all(key in data for key in notify.required['required']):
-                            # Make sure optional keys are acceptable for this type of notification
-                            for key in data:
-                                if key not in notify.required['required']:
-                                    if key not in notify.schema['properties']:
-                                        attributes = ','.join([x for x in notify.schema['properties']])
-                                        raise Exception(f'{typee} notifiers option for {name} only accepts the following attributes: {attributes}')
-                        else:
-                            attributes = ','.join(notify.required['required'])
-                            raise Exception(f'Minimum attributes are required to use {typee} notifiers option: {attributes}')
-                    else:
-                        types = ','.join(notifiers.all_providers())
-                        raise Exception(f'{typee} is not supported for notifiers! Supported types: {types}')
-
-            # Test destinations
-            for dest in config['destinations']:
-                name = dest['name']
-                ### Test SFTP connection
-                if 'sftp' in dest:
-                    sftp_options = pysftp.CnOpts()
-                    sftp_options.hostkeys = None
-                    server = dest['sftp']['server']
-                    port = dest['sftp']['port']
-                    username = str(dest['sftp']['username'])
-                    password = self._global_func.get_destination_password(dest['sftp'], name)
-                    try:
-                        with pysftp.Connection(server, port=port, username=username, password=password, cnopts=sftp_options):
-                            self._log.debug(f'Successfully made a test connection to SFTP endpoint ({server}) [{name}]!')
-                    except Exception as ex:
-                        raise Exception(f'Unable to connect to SFTP endpoint ({server}) [{name}]. Reason: {str(ex)}')
-                ### Test local - nothing to test, /backups folder gets auto-generated in Dockerfile
-                ### Test SMB connection
-                # elif 'smb' in dest:
-                #     try:
-                #         client = smbprotocol.SMBClient(
-                #             server_name=dest['smb']['server'],
-                #             port=dest['smb']['port'],
-                #             username=dest['smb']['username'],
-                #             password=self._global_func.get_destination_password(dest['smb'], name)
-                #         )
-                #         client.connect()
-                #     except Exception as ex:
-                #         raise Exception(f'Unable to connect to SMB endpoint ({server}) [{name}]. Reason: {str(ex)}')
-
-            return True, config
-        except Exception as ex:
-            self._log.error(f'{str(ex)}')
-        
-        return False, None
+    ## Backup Options
+    DESTINATION_LOCAL_PATH = '/backups'

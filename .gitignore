@@ -1,5 +1,4 @@
 tests/sftp
-tests/database
 tests/app
 tests/synology
 local_run.sh
