@@ -43,7 +43,7 @@ class BaseJob(ABC, Task):
     def _cleanup(self):
         pass
 
-    # Prevent more than one task running at the same time, prevents conflicts/glitches
+    # Prevent more than one task running at the same time, prevents conflicts
     def is_running(self):
         i = current_app.control.inspect()
         servers = i.active()
@@ -53,6 +53,24 @@ class BaseJob(ABC, Task):
                     if task['name'] == self.name:
                         return True
         return False
+
+    def status(self):
+        return {} # TODO
+
+    # Cancel task(s)
+    def cancel(self):
+        task_ids = []
+
+        i = current_app.control.inspect()
+        servers = i.active()
+        if servers:
+            for tasks in servers.values():
+                for task in tasks:
+                    if task['name'] == self.name:
+                        task_ids.append(task.id)
+        
+        if len(task_ids) > 0:
+            current_app.control.revoke(task_ids, terminate=True)
 
     @abstractmethod
     def run(self):

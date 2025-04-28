@@ -114,9 +114,7 @@ class Job(db.Model, safrs.SAFRSBase):
             if not job.is_running():
                 raise APIError('There is no active backup running for this job!', status_code=http.HTTPStatus.BAD_REQUEST.value)
 
-            # TODO: get task ID by name
-            # TODO: return APIError if no active tasks (if value above is null)
-            # TODO: return JSON of status details
+            return job.get_status()
 
         except Exception as ex:
             log.error(f'Unable to get status of backup for {self.name} job! Reason: {str(ex)}')
@@ -136,9 +134,9 @@ class Job(db.Model, safrs.SAFRSBase):
             if not job.is_running():
                 raise APIError('There is no active backup for this job!', status_code=http.HTTPStatus.BAD_REQUEST.value)
 
-            # TODO: get task ID by name
-            # TODO: return APIError if no active tasks (if value above is null)
-            # TODO: cancel task and return success
+            job.cancel()
+
+            return {}
 
         except Exception as ex:
             log.error(f'Unable to stop backup for {self.name} job! Reason: {str(ex)}')

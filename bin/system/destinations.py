@@ -5,7 +5,6 @@ import bin.validate
 import bin.extract
 from sqlalchemy.orm import validates, mapped_column, Mapped
 # from typing import List
-import celery.result
 import traceback
 import safrs
 import http
@@ -110,9 +109,7 @@ class Destination(db.Model, safrs.SAFRSBase):
             if not destination.is_running():
                 raise APIError('There is no active cleanup running for this destination!', status_code=http.HTTPStatus.BAD_REQUEST.value)
 
-            # TODO: get task ID by name
-            # TODO: return APIError if no active tasks (if value above is null)
-            # TODO: return JSON of status details
+            return destination.get_status()
 
         except Exception as ex:
             log.error(f'Unable to get status of cleanup for {self.name} destination! Reason: {str(ex)}')
@@ -132,9 +129,9 @@ class Destination(db.Model, safrs.SAFRSBase):
             if not destination.is_running():
                 raise APIError('There is no active cleanup for this destination!', status_code=http.HTTPStatus.BAD_REQUEST.value)
 
-            # TODO: get task ID by name
-            # TODO: return APIError if no active tasks (if value above is null)
-            # TODO: cancel task and return success
+            destination.cancel()
+
+            return {}
 
         except Exception as ex:
             log.error(f'Unable to stop backup for {self.name} job! Reason: {str(ex)}')
