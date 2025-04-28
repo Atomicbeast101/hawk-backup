@@ -1,46 +1,55 @@
 # Imports
-import traceback
 import requests
 
 # Attributes
 IP_ADDRESS = requests.get('https://ipinfo.potatolab.dev/json').json()['ip']
 BASE_URL = f'http://{IP_ADDRESS}:5000'
 
-# Main
-def api_get(url, json=True):
-    try:
-        print(f'Testing {url}...')
-        r = requests.get(url)
-        if r.status_code == 200:
-            print(f'Testing {url}...SUCCESS!')
-            if json:
-                return True, r.json()
-            else:
-                return True, None
-        else:
-            print(f'Testing {url}...FAILED! Reason: {r.text}')
-            return False, None
-    except Exception as ex:
-        print(f'ERROR: Unexpected exception threw when trying to make a GET API call! Reason: {str(ex)}\n{traceback.format_exc()}')
-    return False, None
+# Functions
+def get(endpoint):
+    return requests.get(f'{BASE_URL}{endpoint}')
 
 def main():
-    # Test Prometheus endpoint
-    success, data = api_get(f'{BASE_URL}/metrics', json=False)
+    success = True
 
-    # Health Check
-    success, data = api_get(f'{BASE_URL}/api/health')
+    try:
+        print('==========[TESTING]==========')
 
-    # Alerts
-    success, alerts = api_get(f'{BASE_URL}/api/alerts')
-    # TODO: Test each alert - http://localhost:5000/api/alerts/<name>/test
+        # General
+        r = get('/metrics')
+        assert r.status_code == 200
+        assert r.text is not None
 
-    # Jobs
-    success, jobs = api_get(f'{BASE_URL}/api/jobs')
-    # TODO: Test each job - http://localhost:5000/api/jobs/<name>/start
-    # TODO: Test each job - http://localhost:5000/api/jobs/<name>/status
+        r = get('/api/health')
+        assert r.status_code == 200
+        assert r.json() is not None
 
+        r = get('/api')
+        assert r.status_code == 200
+        assert r.json() is not None
+
+        # Test pulling all datasets
+        r = get('/api/alerts')
+        assert r.status_code == 200
+        assert r.json() is not None
+
+        r = get('/api/destinations')
+        assert r.status_code == 200
+        assert r.json() is not None
+
+        r = get('/api/jobs')
+        assert r.status_code == 200
+        assert r.json() is not None
+
+        # TODO: Add more tests
+
+        print('==========[SUCCESS]==========')
+    
+    except AssertionError as ex:
+        success = False
+        print('==========[FAILURE]==========')
+        print(ex)
+    
     print(f'::set-output name=results::{'success' if success else 'failure'}')
 
-# Start Tests
 main()
