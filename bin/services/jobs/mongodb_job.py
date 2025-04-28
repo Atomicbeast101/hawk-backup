@@ -40,15 +40,21 @@ class MongoDBJob(BaseJob):
             
         return False
 
-    def _get_databases(self):
-        databases = []
+    def _get_databases_and_collections(self):
+        databases = {}
+        total_collections = 0
+
         try:
             con = self._get_connection()
             all_databases = con.list_database_names()
             for database in all_databases:
                 if database not in self._excludes:
-                    databases.append(database)
-            log.debug(f'[{self._job.name}] Pulled {len(databases)} databases to backup!')
+                    collections = []
+                    for collection in con[database].list_collection_names():
+                        collections.append(collection)
+                    databases[database] = collections
+                    total_collections += len(collections)
+            log.debug(f'[{self._job.name}] Pulled {len(databases)} databases & {total_collections} collections to backup!')
             return databases
     
         except Exception as ex:
@@ -59,25 +65,23 @@ class MongoDBJob(BaseJob):
         try:
             con = self._get_connection()
             for database in databases:
-                # excludes = ' '.join(['--excludeCollection={}'.format(exclude) for exclude in self._excludes])
-                db = con[database]
-                for collection in db.list_collection_names():
-                    if not os.path.exists(self._temp_folder, database):
-                        os.makedirs(os.path.exists(self._temp_folder, database))
-                    with open(os.path.join(self._temp_folder, database, f'{collection}.bson')) as f:
-                        for doc in db[collection].find():
+                for collection in databases[database]:
+                    with open(os.path.join(self._temp_folder, f'{database}_{collection}.bson')) as f:
+                        for doc in con[database][collection].find():
                             f.write(bson.BSON.encode(doc))
                 log.debug(f'[{self._job.name}] Backed up {database} from {self._server}:{self._port} {self._type} server so far...')
 
         except Exception as ex:
             raise Exception(f'[{self._job.name}] Unable to dump database(s) from {self._server}:{self._port} {self._type} server to {self._temp_folder} folder! Reason: {str(ex)}')
 
-    def _create_zip(self, backup_ts):
+    def _create_zip(self, backup_ts, databases):
         zip_path = os.path.join(self._temp_folder, f'{backup_ts}.zip')
 
         try:
             with zipfile.ZipFile(zip_path, 'w') as zip:
-                zip.write(os.path.join(self._temp_folder, 'collections.dump'))
+                for database in databases:
+                    for collection in databases:
+                        zip.write(os.path.join(self._temp_folder, f'{database}_{collection}.bson'))
 
         except Exception as ex:
             raise Exception(f'[{self._job.name}] Unable to put {self._type} database NoSQL file(s) to {zip_path}! Reason: {str(ex)}')
