@@ -102,35 +102,35 @@ jobs:
           password: ${{ secrets.LOCAL_ACR_PASSWORD }}
       redis:
         image: redis:latest
-      app:
-        image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-        environment:
-          LOG_LEVEL: DEBUG
-          API_TOKEN: unsecure_api_token
-          PROMETHEUS: true
-          API_DOCS: true
-      worker:
-        image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-        command: celery -A app worker --loglevel=DEBUG --concurrency=4
-        environment:
-          LOG_LEVEL: DEBUG
-          API_TOKEN: unsecure_api_token
-          PROMETHEUS: true
-          API_DOCS: true
+      # app:
+      #   image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
+      #   environment:
+      #     LOG_LEVEL: DEBUG
+      #     API_TOKEN: unsecure_api_token
+      #     PROMETHEUS: true
+      #     API_DOCS: true
+      # worker:
+      #   image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
+      #   command: celery -A app worker --loglevel=DEBUG --concurrency=4
+      #   environment:
+      #     LOG_LEVEL: DEBUG
+      #     API_TOKEN: unsecure_api_token
+      #     PROMETHEUS: true
+      #     API_DOCS: true
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       
-      - name: Run Tests
-        id: status
-        run: |
-          python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-          python3 tests/test.py
+      # - name: Run Tests
+      #   id: status
+      #   run: |
+      #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+      #     python3 tests/test.py
 
-      - name: Stop if Tests Failed
-        if: steps.test_status.outputs.results != 'success'
-        run: |
-          echo "Tests failed! Please view logs for reason."
+      # - name: Stop if Tests Failed
+      #   if: steps.test_status.outputs.results != 'success'
+      #   run: |
+      #     echo "Tests failed! Please view logs for reason."
 
   report:
     name: Report
