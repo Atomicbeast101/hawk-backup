@@ -72,54 +72,13 @@ jobs:
     container:
       image: gitea/runner-images:ubuntu-latest
     needs: release
-    # services:
-    #   sftp:
-    #     image: atmoz/sftp:latest
-    #     command: example:1234:::upload
-    #   postgresql:
-    #     image: postgres:latest
-    #     environment:
-    #       POSTGRES_DB: test
-    #       POSTGRES_USER: bckupmgr
-    #       POSTGRES_PASSWORD: 1234
-    #   mysql:
-    #     image: mysql:latest
-    #     environment:
-    #       MYSQL_ROOT_PASSWORD: 1234
-    #   mongodb:
-    #     image: mongo:latest
-    #     environment:
-    #       MONGO_INITDB_ROOT_USERNAME: root
-    #       MONGO_INITDB_ROOT_PASSWORD: 1234
-    #       MONGO_INITDB_DATABASE: test
-    #   ubuntu:
-    #     image: ${{ vars.LOCAL_ACR_URL }}/ubuntu-with-ssh:latest
-    #     environmnet:
-    #       SSH_USERNAME: root
-    #       SSH_PASSWORD: 1234
-    #     credentials:
-    #       username: ${{ vars.LOCAL_ACR_USERNAME }}
-    #       password: ${{ secrets.LOCAL_ACR_PASSWORD }}
-    #   redis:
-    #     image: redis:latest
-    #   app:
-    #     image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-    #     environment:
-    #       LOG_LEVEL: DEBUG
-    #       API_TOKEN: unsecure_api_token
-    #       PROMETHEUS: true
-    #       API_DOCS: true
-    #   worker:
-    #     image: ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:dev-latest
-    #     command: celery -A app worker --loglevel=DEBUG --concurrency=4
-    #     environment:
-    #       LOG_LEVEL: DEBUG
-    #       API_TOKEN: unsecure_api_token
-    #       PROMETHEUS: true
-    #       API_DOCS: true
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+      
+      - name: Start containers
+        run: |
+          docker compose up -d --build --remove-orphans
       
       # - name: Run Tests
       #   id: status
@@ -131,6 +90,10 @@ jobs:
       #   if: steps.test_status.outputs.results != 'success'
       #   run: |
       #     echo "Tests failed! Please view logs for reason."
+      
+      - name: Stop containers
+        run: |
+          docker compose stop
 
   report:
     name: Report

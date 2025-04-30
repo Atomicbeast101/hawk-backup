@@ -1,0 +1,20 @@
+services:
+  sftp:
+    volumes:
+      - ./tests/sftp:/home/example/upload
+  app:
+    build:
+      context: .
+    volumes:
+      - ./tests/app/data:/data
+  worker:
+    build:
+      context: .
+    volumes:
+      - ./tests/app/data:/data
+      - ./tests/app/log:/log
+      - ./tests/app/tmp:/tmp
+      - ./tests/app/backups:/backups
+
+networks:
+  app:

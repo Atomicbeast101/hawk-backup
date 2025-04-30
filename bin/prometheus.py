@@ -3,12 +3,12 @@ from bin.system.destinations import Destination
 from bin.system.alerts import Alert
 from bin.system.jobs import Job
 import bin.config
-import celery.exceptions
-import celery
 import prometheus_client
 import sqlalchemy.pool
 import traceback
 import logging
+import celery.exceptions
+import celery
 
 # Attributes
 config = bin.config.Config()
