@@ -50,6 +50,11 @@ def main():
         print('==========[FAILURE]==========')
         print(ex)
     
+    except Exception as ex:
+        success = False
+        print('==========[FAILURE]==========')
+        print(ex)
+    
     print(f'::set-output name=results::{'success' if success else 'failure'}')
 
 main()
