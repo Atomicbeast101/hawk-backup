@@ -78,18 +78,18 @@ jobs:
       
       - name: Start containers
         run: |
-          docker compose up -d --build --remove-orphans
+          docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
       
-      # - name: Run Tests
-      #   id: status
-      #   run: |
-      #     python3 -m pip install requests --break-system-packages > /dev/null 2>&1
-      #     python3 tests/test.py
+      - name: Run Tests
+        id: status
+        run: |
+          python3 -m pip install requests --break-system-packages > /dev/null 2>&1
+          python3 tests/test.py
 
-      # - name: Stop if Tests Failed
-      #   if: steps.test_status.outputs.results != 'success'
-      #   run: |
-      #     echo "Tests failed! Please view logs for reason."
+      - name: Stop if Tests Failed
+        if: steps.test_status.outputs.results != 'success'
+        run: |
+          echo "Tests failed! Please view logs for reason."
       
       - name: Stop containers
         run: |
