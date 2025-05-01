@@ -75,9 +75,19 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(echo ${GITHUB_REF} | awk -F"/" '{print $4}') >> $GITHUB_OUTPUT
+          echo BUILD_NUMBER=$(echo "`date +'%Y%m%d'`.${{ github.run_number }}") >> $GITHUB_OUTPUT
       
       - name: Start containers
         run: |
+          export REPO_NAME=${{ steps.meta.outputs.REPO_NAME }}
+          export IMAGE_VERSION=${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
+          docker compose -f tests/docker-compose.yml down --remove-orphans
           docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
       
       - name: Run Tests
