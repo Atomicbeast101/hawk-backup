@@ -92,8 +92,11 @@ jobs:
       - name: Run Tests
         id: status
         run: |
-          python3 -m pip install requests --break-system-packages
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install requests
           python3 tests/test.py
+          deactivate
 
       - name: Stop if Tests Failed
         if: steps.test_status.outputs.results != 'success'
