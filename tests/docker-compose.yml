@@ -78,8 +78,6 @@ services:
       API_DOCS: true
     ports:
       - 5000:5000
-    volumes:
-      - ./tests/app/data:/data
     depends_on:
       - redis
     networks:
