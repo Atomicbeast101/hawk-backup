@@ -87,7 +87,7 @@ jobs:
         run: |
           export REPO_NAME=${{ steps.meta.outputs.REPO_NAME }}
           export IMAGE_VERSION=${{ steps.meta.outputs.REPO_VERSION }}-${{ steps.meta.outputs.BUILD_NUMBER }}
-          docker compose -f tests/docker-compose.yml rm -f
+          docker compose -f tests/docker-compose.yml rm -fsv
           docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
       
       - name: Setup Python
