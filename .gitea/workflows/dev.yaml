@@ -91,6 +91,11 @@ jobs:
           docker compose -f tests/docker-compose.yml rm
           docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
       
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
       - name: Run Tests
         id: status
         run: |
