@@ -33,7 +33,7 @@ celery_application = celery.Celery(
 )
 
 # Functions
-def setup_log(config):
+def setup_log():
     log = None
 
     logFormatter = logging.Formatter('{"time":"%(asctime)s","type":"app","level":"%(levelname)s","message":"%(message)s"}')

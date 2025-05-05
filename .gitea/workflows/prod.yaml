@@ -1,8 +1,8 @@
-name: Build/Push & Test App for Development
+name: Build/Push App for Production
 on:
   push:
     branches:
-      - 'main'
+      - main
 
 env:
   DOCKER_HOST: "tcp://docker:2376/"
@@ -73,7 +73,7 @@ jobs:
           username: ${{ vars.PUBLIC_ACR_USERNAME }}
           password: ${{ secrets.PUBLIC_ACR_PASSWORD }}
 
-      - name: Build & Push to Local ACR
+      - name: Build & Push to Public ACR
         uses: docker/build-push-action@v6
         with:
           platforms: linux/${{ matrix.architecture }}
