@@ -3,7 +3,7 @@ import requests
 
 # Attributes
 IP_ADDRESS = requests.get('https://ipinfo.potatolab.dev/json').json()['ip']
-BASE_URL = f'http://{IP_ADDRESS}:5000'
+BASE_URL = f'http://localhost:5000'
 
 # Functions
 def get(endpoint):
