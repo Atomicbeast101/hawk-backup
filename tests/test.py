@@ -3,7 +3,7 @@ import requests
 
 # Attributes
 IP_ADDRESS = requests.get('https://ipinfo.potatolab.dev/json').json()['ip']
-BASE_URL = f'http://localhost:5000'
+BASE_URL = f'http://{IP_ADDRESS}:5000'
 
 # Functions
 def get(endpoint):
@@ -29,12 +29,17 @@ def main():
             assert r.status_code == GET_ENDPOINTS[endpoint]['http']
             if GET_ENDPOINTS[endpoint]['output'] == 'text':
                 assert r.text is not None
+                print(f'[{endpoint}] Output: {r.text}')
             elif GET_ENDPOINTS[endpoint]['output'] == 'json':
                 assert r.json() is not None
+                print(f'[{endpoint}] Output: {r.json()}')
 
             assert r.status_code == 200
             assert r.text is not None
 
+        except Exception as ex:
+            success = False
+            print(f'[{endpoint}] ERROR: {str(ex)}')
         except AssertionError as ex:
             success = False
             print(f'[{endpoint}] ERROR: {str(ex)}')
