@@ -90,6 +90,7 @@ jobs:
           docker compose -f tests/docker-compose.yml rm -fsv
           docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
 
+          apt install net-tools
           netstat -lntu
 
       - name: Run Tests
