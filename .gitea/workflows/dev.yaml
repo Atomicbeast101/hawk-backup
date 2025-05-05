@@ -111,15 +111,9 @@ jobs:
         if: steps.test_status.outputs.results != 'success'
         run: |
           echo "Tests failed! Please view logs for reason."
-
-  cleanup:
-    name: Clean Up Tests
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    needs:
-      - tests
-    steps:
+      
       - name: Cleanup containers
+        if: always()
         run: |
           docker compose -f tests/docker-compose.yml down --remove-orphans
           docker compose -f tests/docker-compose.yml rm
