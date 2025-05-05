@@ -90,6 +90,8 @@ jobs:
           docker compose -f tests/docker-compose.yml rm -fsv
           docker compose -f tests/docker-compose.yml up -d --build --remove-orphans
 
+          netstat -lntu
+
       - name: Run Tests
         id: status
         env:
