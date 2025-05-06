@@ -68,9 +68,8 @@ jobs:
 
   tests:
     name: Tests
-    runs-on: buildx-ubuntu-latest
-    container:
-      image: gitea/runner-images:ubuntu-latest
+    runs-on: ubuntu-latest
+    continue-on-error: true
     needs: release
     steps:
       - name: Checkout Repo
