@@ -1,15 +1,36 @@
 services:
   sftp:
+    networks:
+      - app
     volumes:
       - ./tests/sftp:/home/example/upload
+  postgresql:
+    networks:
+      - app
+  mysql:
+    networks:
+      - app
+  mongodb:
+    networks:
+      - app
+  ubuntu:
+    networks:
+      - app
+  redis:
+    networks:
+      - app
   app:
     build:
       context: .
+    networks:
+      - app
     volumes:
       - ./tests/app/data:/data
   worker:
     build:
       context: .
+    networks:
+      - app
     volumes:
       - ./tests/app/data:/data
       - ./tests/app/log:/log

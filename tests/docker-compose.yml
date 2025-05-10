@@ -5,8 +5,6 @@ services:
     restart: no
     attach: false
     command: example:1234:::upload
-    networks:
-      - app
   postgresql:
     container_name: postgresql
     image: postgres:latest
@@ -18,8 +16,6 @@ services:
       POSTGRES_PASSWORD: 1234
     volumes:
       - ./tests/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - app
   mysql:
     container_name: mysql
     image: mysql:latest
@@ -29,8 +25,6 @@ services:
       MYSQL_ROOT_PASSWORD: 1234
     volumes:
       - ./tests/mysql_init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - app
   mongodb:
     container_name: mongodb
     image: mongo:latest
@@ -42,8 +36,6 @@ services:
       MONGO_INITDB_DATABASE: test
     volumes:
       - ./tests/mongodb-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    networks:
-      - app
   ubuntu:
     container_name: ubuntu
     image: ${IMAGE_BASE}/ubuntu-with-ssh:latest
@@ -52,15 +44,11 @@ services:
     environment:
       SSH_USERNAME: root
       SSH_PASSWORD: 1234
-    networks:
-      - app
   redis:
     container_name: redis
     image: redis:latest
     restart: no
     attach: false
-    networks:
-      - app
     healthcheck:
       test: [ 'CMD', 'redis-cli', 'ping' ]
       interval: 5s
@@ -80,8 +68,6 @@ services:
       - 5000:5000
     depends_on:
       - redis
-    networks:
-      - app
     healthcheck:
       test: [ 'CMD', 'curl', '-f', 'http://localhost:5000/api/health' ]
       interval: 5s
@@ -99,14 +85,9 @@ services:
       API_TOKEN: unsecure_api_token
     depends_on:
       - redis
-    networks:
-      - app
     healthcheck:
       test: [ 'CMD', 'celery', '-A', 'app', 'status']
       interval: 5s
       timeout: 5s
       retries: 3
       start_period: 1s
-
-networks:
-  app:
