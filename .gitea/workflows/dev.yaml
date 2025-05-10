@@ -69,7 +69,7 @@ jobs:
 
   tests:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: buildx-ubuntu-latest
     container:
       image: gitea/runner-images:ubuntu-latest
     env:
